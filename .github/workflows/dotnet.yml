@@ -1,0 +1,44 @@
+name: Buddget CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore Buddget.sln
+
+    - name: Build solution
+      run: dotnet build Buddget.sln --configuration Release --no-restore
+
+    - name: Create tool manifest
+      run: dotnet new tool-manifest
+
+    - name: Restore dotnet tools
+      run: dotnet tool restore
+
+    # Uncomment when you have tests
+    # - name: Run tests
+    #   run: dotnet test Buddget.sln --configuration Release --no-build --verbosity normal
+
+    env:
+      DOTNET_CLI_HOME: ${{ github.workspace }}/temp
