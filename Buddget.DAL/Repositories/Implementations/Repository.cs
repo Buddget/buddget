@@ -8,8 +8,9 @@ namespace Buddget.DAL.Repositories.Implementations
     public class Repository<TEntity> : IRepository<TEntity>
         where TEntity : class
     {
-        private DbSet<TEntity> dbSet;
         private readonly AppDbContext _context;
+        private DbSet<TEntity> dbSet;
+
         public Repository(AppDbContext db)
         {
             _context = db;

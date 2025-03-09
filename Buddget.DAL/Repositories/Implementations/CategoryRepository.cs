@@ -12,7 +12,7 @@ namespace Buddget.DAL.Repositories.Implementations
         public CategoryRepository(AppDbContext context)
             : base(context)
         {
-            this._context = context;
+            _context = context;
         }
 
         public async Task<IEnumerable<CategoryEntity>> GetCategoriesByUserIdAsync(int userId)

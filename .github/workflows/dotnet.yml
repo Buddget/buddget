@@ -29,8 +29,12 @@ jobs:
       run: dotnet new tool-manifest
     - name: Restore dotnet tools
       run: dotnet tool restore
-    - name: Install StyleCop Analyzers
-      run: dotnet add package StyleCop.Analyzers --version 1.2.0-beta.556 --source https://www.nuget.org/api/v2/
+    - name: Install StyleCop.Analyzers for all projects
+      run: |
+        for proj in $(find . -name "*.csproj"); do
+          dotnet add "$proj" package StyleCop.Analyzers --version 1.2.0-beta.556 --source https://www.nuget.org/api/v2/
+        done
+
     - name: Run StyleCop Analysis
       run: |
         dotnet build Buddget.sln /p:TreatWarningsAsErrors=true /p:EnforceCodeStyleInBuild=true /p:StyleCopAnalyzersConfiguration=${{ github.workspace }}/stylecop.json

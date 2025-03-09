@@ -1,5 +1,12 @@
 root = true
 
+[**/Migrations/**]
+dotnet_analyzer_diagnostic.severity = none
+
+# All files
+[*]
+dotnet_diagnostic.SA0001.severity = none
+
 # C# files
 [*.cs]
 dotnet_diagnostic.CS8603.severity = none

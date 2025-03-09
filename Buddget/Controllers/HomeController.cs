@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Buddget.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Buddget.Controllers
 {
