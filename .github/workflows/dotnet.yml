@@ -4,10 +4,12 @@ on:
     branches:
       - main
       - develop
+      - master
   pull_request:
     branches:
       - main
       - develop
+      - master
   workflow_dispatch:
 jobs:
   build:
@@ -28,7 +30,7 @@ jobs:
     - name: Restore dotnet tools
       run: dotnet tool restore
     - name: Install StyleCop Analyzers
-      run: dotnet add package StyleCop.Analyzers --version 1.2.0-beta.556 --source https://www.nuget.org/api/v2/ --all-projects
+      run: dotnet add package StyleCop.Analyzers --version 1.2.0-beta.556 --source https://www.nuget.org/api/v2/
     - name: Run StyleCop Analysis
       run: |
         dotnet build Buddget.sln /p:TreatWarningsAsErrors=true /p:EnforceCodeStyleInBuild=true /p:StyleCopAnalyzersConfiguration=${{ github.workspace }}/stylecop.json
