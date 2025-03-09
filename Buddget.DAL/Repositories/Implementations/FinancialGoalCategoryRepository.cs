@@ -9,11 +9,11 @@ namespace Buddget.DAL.Repositories.Implementations
     {
         private readonly AppDbContext _context;
 
-        public FinancialGoalCategoryRepository(AppDbContext context) : base(context)
+        public FinancialGoalCategoryRepository(AppDbContext context)
+            : base(context)
         {
             _context = context;
         }
-
 
         public async Task<IEnumerable<FinancialGoalCategoryEntity>> GetAllByGoalIdAsync(int goalId)
         {

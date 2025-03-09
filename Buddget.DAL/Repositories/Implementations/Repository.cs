@@ -1,20 +1,21 @@
 using Buddget.DAL.DataAccess;
+using Buddget.DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Buddget.DAL.Repositories.Interfaces;
-
 
 namespace Buddget.DAL.Repositories.Implementations
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
+    public class Repository<TEntity> : IRepository<TEntity>
+        where TEntity : class
     {
+        private DbSet<TEntity> dbSet;
         private readonly AppDbContext _context;
-        internal DbSet<TEntity> dbSet;
         public Repository(AppDbContext db)
         {
             _context = db;
             this.dbSet = _context.Set<TEntity>();
         }
+
         public async Task AddAsync(TEntity entity)
         {
             dbSet.Add(entity);
@@ -50,7 +51,7 @@ namespace Buddget.DAL.Repositories.Implementations
         {
             IQueryable<TEntity> query = dbSet;
             query = query.Where(filter);
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<TEntity> GetByIdAsync(int id)

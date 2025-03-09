@@ -9,7 +9,8 @@ namespace Buddget.DAL.Repositories.Implementations
     {
         private readonly AppDbContext _context;
 
-        public FinancialGoalRepository(AppDbContext context) : base(context)
+        public FinancialGoalRepository(AppDbContext context)
+            : base(context)
         {
             _context = context;
         }

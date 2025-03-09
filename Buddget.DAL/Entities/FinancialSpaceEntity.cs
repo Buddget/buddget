@@ -10,7 +10,7 @@ namespace Buddget.DAL.Entities
         [Required(ErrorMessage = "Space name is required.")]
         [StringLength(255, ErrorMessage = "Space name cannot exceed 255 characters.")]
         public string Name { get; set; }
-        
+
         [StringLength(1000, ErrorMessage = "Description cannot exceed 255 characters.")]
         public string Description { get; set; }
 
@@ -23,7 +23,7 @@ namespace Buddget.DAL.Entities
         public int OwnerId { get; set; }
 
         public DateTime CreatedAt { get; set; }
-        
+
         public UserEntity Owner { get; set; }
         public ICollection<FinancialSpaceMemberEntity> Members { get; set; }
         public ICollection<TransactionEntity> Transactions { get; set; }

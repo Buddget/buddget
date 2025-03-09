@@ -5,7 +5,8 @@ namespace Buddget.DAL.DataAccess
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options)
         {
         }
 
@@ -48,19 +49,19 @@ namespace Buddget.DAL.DataAccess
             });
 
             modelBuilder.Entity<FinancialSpaceEntity>(entity =>
-            {                
+            {
                 // One financial space can have many members
                 entity.HasMany(e => e.Members)
                       .WithOne(e => e.FinancialSpace)
                       .HasForeignKey(e => e.FinancialSpaceId)
                       .OnDelete(DeleteBehavior.Cascade);
-                
+
                 // One financial space can have many transactions
                 entity.HasMany(e => e.Transactions)
                       .WithOne(e => e.FinancialSpace)
                       .HasForeignKey(e => e.FinancialSpaceId)
                       .OnDelete(DeleteBehavior.Cascade);
-                
+
                 // Many-to-many relationship with FinancialGoalEntity through FinancialGoalSpaceEntity
                 entity.HasMany(e => e.FinancialGoalSpaces)
                       .WithOne(e => e.FinancialSpace)
@@ -75,7 +76,7 @@ namespace Buddget.DAL.DataAccess
                       .WithOne(e => e.FinancialGoal)
                       .HasForeignKey(e => e.FinancialGoalId)
                       .OnDelete(DeleteBehavior.Cascade);
-                
+
                 entity.HasMany<FinancialGoalCategoryEntity>()
                         .WithOne(e => e.FinancialGoal)
                         .HasForeignKey(e => e.FinancialGoalId)

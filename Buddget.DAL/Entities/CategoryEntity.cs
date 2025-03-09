@@ -16,7 +16,7 @@ namespace Buddget.DAL.Entities
 
         [Required(ErrorMessage = "Category default status is required.")]
         public bool IsDefault { get; set; } = false;
-                
+
         public UserEntity User { get; set; }
     }
 }

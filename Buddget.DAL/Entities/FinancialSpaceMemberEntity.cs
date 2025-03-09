@@ -16,7 +16,7 @@ namespace Buddget.DAL.Entities
         [Required(ErrorMessage = "Role is required.")]
         [StringLength(50, ErrorMessage = "Role cannot exceed 50 characters.")]
         public string Role { get; set; } // "owner", "member", or "banned"
-        
+
         public FinancialSpaceEntity FinancialSpace { get; set; }
         public UserEntity User { get; set; }
     }

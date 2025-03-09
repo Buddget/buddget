@@ -38,7 +38,7 @@ namespace Buddget.DAL.Entities
 
         [Required(ErrorMessage = "Transaction date is required.")]
         public DateTime Date { get; set; }
-        
+
         public FinancialSpaceEntity FinancialSpace { get; set; }
         public UserEntity User { get; set; }
         public CategoryEntity Category { get; set; }

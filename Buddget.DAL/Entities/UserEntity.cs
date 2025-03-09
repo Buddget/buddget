@@ -28,7 +28,7 @@ namespace Buddget.DAL.Entities
         public string Role { get; set; }
 
         public DateTime RegisteredAt { get; set; }
-        
+
         public ICollection<CategoryEntity> Categories { get; set; }
         public ICollection<FinancialSpaceEntity> OwnedSpaces { get; set; }
         public ICollection<FinancialSpaceMemberEntity> SpaceMemberships { get; set; }

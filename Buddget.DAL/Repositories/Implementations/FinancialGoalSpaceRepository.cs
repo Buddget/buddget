@@ -9,7 +9,8 @@ namespace Buddget.DAL.Repositories.Implementations
     {
         private readonly AppDbContext _context;
 
-        public FinancialGoalSpaceRepository(AppDbContext context) : base(context)
+        public FinancialGoalSpaceRepository(AppDbContext context)
+            : base(context)
         {
             _context = context;
         }
@@ -21,6 +22,5 @@ namespace Buddget.DAL.Repositories.Implementations
                 .Include(gs => gs.FinancialGoal)
                 .ToListAsync();
         }
-
     }
 }
