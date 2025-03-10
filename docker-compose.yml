@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  buddget-seq:
+    image: datalust/seq:latest
+    container_name: 'buddget-seq'
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:5341
+      - 8081:80
