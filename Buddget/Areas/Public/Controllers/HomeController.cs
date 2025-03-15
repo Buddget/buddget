@@ -2,8 +2,9 @@ using Buddget.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Buddget.Controllers
+namespace Buddget.Areas.Public.Controllers
 {
+    [Area("Public")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
