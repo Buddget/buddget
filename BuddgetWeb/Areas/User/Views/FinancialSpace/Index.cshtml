@@ -24,6 +24,12 @@
                 }
             </div>
         </div>
+        <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
+            <i class=""></i> Add New Goal
+        </button>
+
+
+
     </div>
 
     <!-- Members -->
@@ -39,12 +45,26 @@
                 }
             </div>
         </div>
+        <form method="post" asp-controller="FinancialSpace" asp-action="">
+            <div class="form-group">
+                <input asp-for="" class="form-control" />
+                <span asp-validation-for="" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Invite User</button>
+        </form>
     </div>
 
     <!-- Recent Transactions -->
     <div class="card mt-3">
         <div class="card-header text-center">
             <h4>Recent Transactions</h4>
+            <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
+                <i class=""></i> See More
+            </button>
+            <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
+                <i class=""></i> Add New Transaction
+            </button>
         </div>
         <div class="card-body">
             @foreach (var transaction in Model.RecentTransactions)

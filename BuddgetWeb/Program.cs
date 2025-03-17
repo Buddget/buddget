@@ -71,4 +71,9 @@ app.MapControllerRoute(
     pattern: "{area=User}/{controller=FinancialSpace}/{action=Index}/{id?}",
     defaults: new { area = "User" });
 
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{area=Public}/{controller=Home}/{action=Index}/{id?}",
+//    defaults: new { area = "Public" });
+
 app.Run();
