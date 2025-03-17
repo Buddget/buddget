@@ -53,5 +53,23 @@ namespace Buddget.BLL.Services.Implementations
 
             return spaceDto;
         }
+
+        public async Task<IEnumerable<FinancialSpaceDto>> GetFinancialSpacesUserIsMemberOrOwnerOf(int userId)
+        {
+            var spacesOwned = await _financialSpaceRepository.GetSpacesUserIsOwnerOfAsync(userId);
+            var spacesMember = await _financialSpaceRepository.GetSpacesUserIsMemberOfAsync(userId);
+
+            var allSpaces = spacesOwned.Concat(spacesMember).Distinct();
+            return allSpaces.Select(space => new FinancialSpaceDto
+            {
+                Id = space.Id,
+                Name = space.Name,
+                Description = space.Description,
+                ImageName = space.ImageName,
+                ImageData = space.ImageData,
+                OwnerName = space.Owner.FirstName,
+                OwnerLastName = space.Owner.LastName,
+            });
+        }
     }
 }

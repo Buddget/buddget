@@ -16,7 +16,21 @@ namespace BuddgetWeb.Areas.User.Controllers
             _mapper = mapper;
         }
 
-        public async Task<IActionResult> Index(int id = 2)
+        public async Task<IActionResult> MySpaces()
+        {
+            // Assuming userId is 1 for now - you should get this from authentication
+            int userId = 1;
+            var spaces = await _financialSpaceService.GetFinancialSpacesUserIsMemberOrOwnerOf(userId);
+
+            var viewModel = new BuddgetWeb.Areas.User.Models.MySpacesViewModel
+            {
+                FinancialSpaces = spaces.ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> Index(int id)
         {
             var space = await _financialSpaceService.GetFinancialSpaceByIdAsync(id);
             if (space == null)
