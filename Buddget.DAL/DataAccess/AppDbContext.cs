@@ -67,6 +67,11 @@ namespace Buddget.DAL.DataAccess
                       .WithOne(e => e.FinancialSpace)
                       .HasForeignKey(e => e.FinancialSpaceId)
                       .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Owner)
+                      .WithMany(e => e.OwnedSpaces)
+                      .HasForeignKey(e => e.OwnerId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Configure FinancialGoalEntity

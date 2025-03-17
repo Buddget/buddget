@@ -15,10 +15,11 @@ namespace Buddget.DAL.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<IEnumerable<FinancialSpaceEntity>> GetSpacesByUserIdAsync(int userId)
+        public async Task<IEnumerable<FinancialSpaceEntity>> GetSpacesUserIsOwnerOfAsync(int userId)
         {
             return await _context.FinancialSpaces
                 .Where(s => s.OwnerId == userId)
+                .Include(s => s.Owner)
                 .ToListAsync();
         }
 
@@ -26,6 +27,8 @@ namespace Buddget.DAL.Repositories.Implementations
         {
             return await _context.FinancialSpaceMembers
                 .Where(m => m.UserId == userId)
+                .Include(m => m.FinancialSpace)
+                    .ThenInclude(fs => fs.Owner)
                 .Select(m => m.FinancialSpace)
                 .ToListAsync();
         }
