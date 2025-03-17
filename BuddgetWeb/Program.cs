@@ -63,13 +63,14 @@ app.UseAuthorization();
 app.MapStaticAssets();
 
 app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    name: "default",
+    pattern: "{area=Public}/{controller=Home}/{action=Index}/{id?}",
+    defaults: new { area = "Public" });
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{area=User}/{controller=FinancialSpace}/{action=Index}/{id?}",
-    defaults: new { area = "User" });
+    name: "financial-space",
+    pattern: "FinancialSpace/{action=Index}/{id?}",
+    defaults: new { area = "User", controller = "FinancialSpace" });
 
 //app.MapControllerRoute(
 //    name: "default",
