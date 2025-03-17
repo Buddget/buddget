@@ -37,5 +37,14 @@ namespace Buddget.DAL.Repositories.Implementations
                 .Select(b => b.FinancialSpace)
                 .ToListAsync();
         }
+
+        public async Task<FinancialSpaceEntity> GetFinancialSpaceAsync(int id)
+        {
+            var space = await _context.FinancialSpaces
+                .Include(fs => fs.Owner)
+                .FirstOrDefaultAsync(fs => fs.Id == id);
+
+            return space;
+        }
     }
 }

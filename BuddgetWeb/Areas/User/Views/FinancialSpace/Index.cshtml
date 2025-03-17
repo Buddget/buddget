@@ -1,0 +1,76 @@
+﻿@model Buddget.BLL.DTOs.FinancialSpaceDto
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header text-center">
+            <h2>@Model.Name</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted"><strong>Owner:</strong> @Model.OwnerName</p>
+            <p>@Model.Description</p>
+        </div>
+    </div>
+
+    <!-- Financial Goals -->
+    <div class="card mt-3">
+        <div class="card-header text-center">
+            <h4>Financial Goals</h4>
+        </div>
+        <div class="card-body">
+            <div style="max-height: 200px; overflow-y: auto;">
+                @foreach (var goal in Model.Goals)
+                {
+                    <p>@goal.Name</p>
+                }
+            </div>
+        </div>
+        <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
+            <i class=""></i> Add New Goal
+        </button>
+
+
+
+    </div>
+
+    <!-- Members -->
+    <div class="card mt-3">
+        <div class="card-header text-center">
+            <h4>Members</h4>
+        </div>
+        <div class="card-body">
+            <div style="max-height: 200px; overflow-y: auto;">
+                @foreach (var member in Model.Members)
+                {
+                    <p>@member.Email</p>
+                }
+            </div>
+        </div>
+        <form method="post" asp-controller="FinancialSpace" asp-action="">
+            <div class="form-group">
+                <input asp-for="" class="form-control" />
+                <span asp-validation-for="" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Invite User</button>
+        </form>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card mt-3">
+        <div class="card-header text-center">
+            <h4>Recent Transactions</h4>
+            <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
+                <i class=""></i> See More
+            </button>
+            <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
+                <i class=""></i> Add New Transaction
+            </button>
+        </div>
+        <div class="card-body">
+            @foreach (var transaction in Model.RecentTransactions)
+            {
+                <p>@transaction.Name - @transaction.Amount @transaction.Currency</p>
+            }
+        </div>
+    </div>
+</div>

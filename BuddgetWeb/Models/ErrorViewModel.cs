@@ -1,4 +1,4 @@
-namespace Buddget.Models
+namespace BuddgetWeb.Models
 {
     public class ErrorViewModel
     {
