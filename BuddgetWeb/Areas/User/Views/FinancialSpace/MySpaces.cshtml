@@ -1,0 +1,138 @@
+﻿@model BuddgetWeb.Areas.User.Models.MySpacesViewModel
+<div class="container mt-4">
+    <h2 class="text-center mb-4">My Financial Spaces</h2>
+    <div class="spaces-grid">
+        @foreach (var space in Model.FinancialSpaces)
+        {
+            <div class="space-card">
+                <div class="space-content">
+                    <div class="space-left">
+                        <h5 class="space-title">@space.Name</h5>
+                        <p class="space-desc">@space.Description</p>
+                        <div class="space-owner-container">
+                            <p class="space-owner">Owner: @space.OwnerName</p>
+                        </div>
+                    </div>
+                    <div class="space-right">
+                        <div class="space-img">
+                            @if (!string.IsNullOrEmpty(space.ImageName) && space.ImageData != null)
+                            {
+                                <img src="data:image/jpeg;base64,@Convert.ToBase64String(space.ImageData)" alt="@space.Name" />
+                            }
+                            else
+                            {
+                                <img src="~/images/placeholder.png" alt="Image Placeholder" />
+                            }
+                        </div>
+                    </div>
+                </div>
+                <a href="/User/FinancialSpace/Index/@space.Id" class="space-btn">View Space</a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .spaces-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .space-card {
+        display: flex;
+        flex-direction: column;
+        background: #f8f9fa;
+        border-radius: 12px;
+        overflow: hidden;
+        padding: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+        height: 100%;
+    }
+
+        .space-card:hover {
+            transform: scale(1.03);
+        }
+
+    .space-content {
+        display: flex;
+        margin-bottom: 16px;
+        flex: 1;
+    }
+
+    .space-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding-right: 10px;
+    }
+
+    .space-right {
+        width: 130px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .space-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #17632d;
+        margin-top: 0;
+        margin-bottom: 8px;
+        text-align: left;
+        padding-top: 0;
+    }
+
+    .space-desc {
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 8px;
+        flex: 1;
+    }
+
+    .space-owner-container {
+        margin-top: auto;
+    }
+
+    .space-owner {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #17632d;
+        text-align: left;
+        margin-bottom: 0;
+    }
+
+    .space-btn {
+        display: block;
+        text-align: center;
+        background: #17632d;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-top: auto;
+    }
+
+        .space-btn:hover {
+            background: #145826;
+            color: white;
+            text-decoration: none;
+        }
+
+    .space-img {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+        .space-img img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+</style>
