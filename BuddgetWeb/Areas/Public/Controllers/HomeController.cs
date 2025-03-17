@@ -1,8 +1,8 @@
-using Buddget.Models;
+using BuddgetWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Buddget.Areas.Public.Controllers
+namespace BuddgetWeb.Areas.Public.Controllers
 {
     [Area("Public")]
     public class HomeController : Controller
