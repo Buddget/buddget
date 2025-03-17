@@ -2,11 +2,6 @@
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
 using Buddget.DAL.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Buddget.BLL.Services.Implementation
 {
