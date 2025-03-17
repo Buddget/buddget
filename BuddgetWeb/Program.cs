@@ -1,4 +1,5 @@
 using Buddget.BLL.Mappers;
+using Buddget.BLL.Services.Implementation;
 using Buddget.BLL.Services.Implementations;
 using Buddget.BLL.Services.Interfaces;
 using Buddget.DAL.DataAccess;
@@ -32,10 +33,20 @@ builder.Services.AddScoped<IFinancialGoalRepository, FinancialGoalRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+// Реєстрація сервісу
 builder.Services.AddScoped<IFinancialSpaceService, FinancialSpaceService>();
+builder.Services.AddScoped<IFinancialSpaceMemberService, FinancialSpaceMemberService>();
+builder.Services.AddScoped<IFinancialGoalSpaceService, FinancialGoalSpaceService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 // Add mappers
-builder.Services.AddAutoMapper(typeof(FinancialSpaceProfile));
+builder.Services.AddAutoMapper(
+    typeof(FinancialSpaceProfile),
+    typeof(FinancialSpaceMemberProfile),
+    typeof(FinancialGoalSpaceProfile),
+    typeof(TransactionProfile),
+    typeof(UserProfile)
+);
 
 // Add logger
 builder.Host.UseSerilog((context, loggerConfig) =>

@@ -2,31 +2,28 @@
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
 using Buddget.DAL.Repositories.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Buddget.BLL.Services.Implementations
 {
     public class FinancialSpaceService : IFinancialSpaceService
     {
         private readonly IFinancialSpaceRepository _financialSpaceRepository;
-        private readonly IFinancialSpaceMemberRepository _financialSpaceMemberRepository;
-        private readonly IFinancialGoalSpaceRepository _financialGoalSpaceRepository;
-        private readonly ITransactionRepository _transactionRepository;
+        private readonly IFinancialSpaceMemberService _financialSpaceMemberService;
+        private readonly IFinancialGoalSpaceService _financialGoalSpaceService;
+        private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
 
         public FinancialSpaceService(
             IFinancialSpaceRepository financialSpaceRepository,
-            IFinancialSpaceMemberRepository financialSpaceMemberRepository,
-            IFinancialGoalSpaceRepository financialGoalSpaceRepository,
-            ITransactionRepository transactionRepository,
+            IFinancialSpaceMemberService financialSpaceMemberService,
+            IFinancialGoalSpaceService financialGoalSpaceService,
+            ITransactionService transactionService,
             IMapper mapper)
         {
             _financialSpaceRepository = financialSpaceRepository;
-            _financialSpaceMemberRepository = financialSpaceMemberRepository;
-            _financialGoalSpaceRepository = financialGoalSpaceRepository;
-            _transactionRepository = transactionRepository;
+            _financialSpaceMemberService = financialSpaceMemberService;
+            _financialGoalSpaceService = financialGoalSpaceService;
+            _transactionService = transactionService;
             _mapper = mapper;
         }
 
@@ -40,17 +37,19 @@ namespace Buddget.BLL.Services.Implementations
             }
 
             // Отримуємо членів простору
-            var members = await _financialSpaceMemberRepository.GetMembersBySpaceIdAsync(spaceId);
+            var members = await _financialSpaceMemberService.GetMembersBySpaceIdAsync(spaceId);
+
             // Отримуємо фінансові цілі простору
-            var financialGoals = await _financialGoalSpaceRepository.GetAllBySpaceIdAsync(spaceId);
+            var financialGoals = await _financialGoalSpaceService.GetFinancialGoalsBySpaceIdAsync(spaceId);
+
             // Отримуємо транзакції простору
-            var transactions = await _transactionRepository.GetTransactionsBySpaceIdAsync(spaceId);
+            var transactions = await _transactionService.GetTransactionsBySpaceIdAsync(spaceId);
 
             // Мапимо все в DTO
             var spaceDto = _mapper.Map<FinancialSpaceDto>(spaceEntity);
-            //spaceDto.Members = members.Select(m => _mapper.Map<UserDto>(m.User)).ToList();
-            spaceDto.Goals = financialGoals.Select(fg => _mapper.Map<FinancialGoalDto>(fg.FinancialGoal)).ToList();
-            //spaceDto.RecentTransactions = transactions.Select(t => _mapper.Map<TransactionDto>(t)).ToList();
+            spaceDto.Goals = (List<FinancialGoalDto>)financialGoals;
+            spaceDto.Members = (List<FinancialSpaceMemberDto>)members;
+            spaceDto.RecentTransactions = (List<TransactionDto>)transactions;
 
             return spaceDto;
         }
