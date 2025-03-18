@@ -29,46 +29,44 @@ namespace Buddget.BLL.Services.Implementations
 
         public async Task<FinancialSpaceDto> GetFinancialSpaceByIdAsync(int spaceId)
         {
-            // Отримуємо простір
+            // Get financial space
             var spaceEntity = await _financialSpaceRepository.GetFinancialSpaceAsync(spaceId);
             if (spaceEntity == null)
             {
                 return null;
             }
 
-            // Отримуємо членів простору
+            // Get members of the space
             var members = await _financialSpaceMemberService.GetMembersBySpaceIdAsync(spaceId);
 
-            // Отримуємо фінансові цілі простору
+            // Get financial goals of the space
             var financialGoals = await _financialGoalSpaceService.GetFinancialGoalsBySpaceIdAsync(spaceId);
 
-            // Отримуємо транзакції простору
+            // Get transactions of the space
             var transactions = await _transactionService.GetTransactionsBySpaceIdAsync(spaceId);
 
-            // Мапимо все в DTO
+            // Map to DTO
             var spaceDto = _mapper.Map<FinancialSpaceDto>(spaceEntity);
-            spaceDto.Goals = (List<FinancialGoalDto>)financialGoals;
-            spaceDto.Members = (List<FinancialSpaceMemberDto>)members;
-            spaceDto.RecentTransactions = (List<TransactionDto>)transactions;
+            spaceDto.Goals = financialGoals.ToList();
+            spaceDto.Members = members.ToList();
+            spaceDto.RecentTransactions = transactions.ToList();
 
             return spaceDto;
         }
 
         public async Task<IEnumerable<FinancialSpaceDto>> GetFinancialSpacesUserIsMemberOrOwnerOf(int userId)
         {
-            var spacesOwned = await _financialSpaceRepository.GetSpacesUserIsOwnerOfAsync(userId);
-            var spacesMember = await _financialSpaceRepository.GetSpacesUserIsMemberOfAsync(userId);
+            var spaces = await _financialSpaceRepository.GetSpacesUserIsMemberOrOwnerOf(userId);
 
-            var allSpaces = spacesOwned.Concat(spacesMember).Distinct();
-            return allSpaces.Select(space => new FinancialSpaceDto
+            return spaces.Select(space => new FinancialSpaceDto
             {
                 Id = space.Id,
                 Name = space.Name,
                 Description = space.Description,
                 ImageName = space.ImageName,
                 ImageData = space.ImageData,
-                OwnerName = space.Owner.FirstName,
-                OwnerLastName = space.Owner.LastName,
+                OwnerName = space.Owner?.FirstName ?? "Unknown",
+                OwnerLastName = space.Owner?.LastName ?? "User",
             });
         }
     }

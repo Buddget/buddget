@@ -33,6 +33,13 @@ namespace Buddget.DAL.Repositories.Implementations
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<FinancialSpaceEntity>> GetSpacesUserIsMemberOrOwnerOf(int userId)
+        {
+            var spacesOwned = await GetSpacesUserIsOwnerOfAsync(userId);
+            var spacesMember = await GetSpacesUserIsMemberOfAsync(userId);
+            return spacesOwned.Concat(spacesMember).Distinct();
+        }
+
         public async Task<IEnumerable<FinancialSpaceEntity>> GetSpacesUserIsBannedIn(int userId)
         {
             return await _context.FinancialSpaceMembers
