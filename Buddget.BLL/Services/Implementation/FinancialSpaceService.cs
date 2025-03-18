@@ -47,6 +47,7 @@ namespace Buddget.BLL.Services.Implementations
 
             // Map to DTO
             var spaceDto = _mapper.Map<FinancialSpaceDto>(spaceEntity);
+            spaceDto.OwnerName = spaceEntity.Owner.FirstName + " " + spaceEntity.Owner.LastName;
             spaceDto.Goals = financialGoals.ToList();
             spaceDto.Members = members.ToList();
             spaceDto.RecentTransactions = transactions.ToList();
