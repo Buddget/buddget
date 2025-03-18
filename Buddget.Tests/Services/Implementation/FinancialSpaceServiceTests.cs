@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Moq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
