@@ -3,14 +3,18 @@ using Buddget.BLL.Services.Implementation;
 using Buddget.DAL.Repositories.Interfaces;
 using AutoMapper;
 using Buddget.DAL.Entities;
+using Buddget.BLL.DTOs;
 
 namespace Buddget.Tests.Services
 {
     public class FinancialSpaceMemberServiceTests
     {
         private readonly Mock<IFinancialSpaceMemberRepository> _mockFinancialSpaceMemberRepository;
+        private readonly Mock<IUserRepository> _mockUserServiceRepository;
         private readonly IMapper _mapper;
         private readonly FinancialSpaceMemberService _service;
+
+        private readonly UserService _mockUserService;
 
         public FinancialSpaceMemberServiceTests()
         {
@@ -25,8 +29,12 @@ namespace Buddget.Tests.Services
             // Initialize the mock repository
             _mockFinancialSpaceMemberRepository = new Mock<IFinancialSpaceMemberRepository>();
 
+            _mockUserServiceRepository = new Mock<IUserRepository>();
+
             // Create the service with mocked dependencies
             _service = new FinancialSpaceMemberService(_mockFinancialSpaceMemberRepository.Object, _mapper);
+
+            _mockUserService = new UserService(_mockUserServiceRepository.Object, _mapper);
         }
 
         [Fact]
@@ -92,5 +100,41 @@ namespace Buddget.Tests.Services
             Assert.Empty(result);
             _mockFinancialSpaceMemberRepository.Verify(repo => repo.GetMembersBySpaceIdAsync(spaceId), Times.Once);
         }
+
+        [Fact]
+        public async Task CreateAsync_CreatesMemberAndReturnsDto()
+        {
+            // Arrange
+            var createDto = new BLL.DTOs.CreateFinancialSpaceMemberDto
+            {
+                UserId = 1,
+                FinancialSpaceId = 1,
+                Role = "Member"
+            };
+
+            var entity = new FinancialSpaceMemberEntity
+            {
+                Id = 1,
+                UserId = createDto.UserId,
+                FinancialSpaceId = createDto.FinancialSpaceId,
+                Role = createDto.Role
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.CreateAsync(It.IsAny<FinancialSpaceMemberEntity>()))
+                .ReturnsAsync(entity);
+
+            // Act
+            var result = await _service.CreateAsync(createDto);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(createDto.UserId, result.UserId);
+            Assert.Equal(createDto.FinancialSpaceId, result.FinancialSpaceId);
+            Assert.Equal(createDto.Role, result.Role);
+
+            _mockFinancialSpaceMemberRepository.Verify(repo => repo.CreateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Once);
+        }
+
     }
 }
