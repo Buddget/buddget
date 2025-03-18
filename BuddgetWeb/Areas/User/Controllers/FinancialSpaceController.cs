@@ -18,7 +18,6 @@ namespace BuddgetWeb.Areas.User.Controllers
 
         public async Task<IActionResult> MySpaces()
         {
-            // Assuming userId is 1 for now - you should get this from authentication
             int userId = 1;
             var spaces = await _financialSpaceService.GetFinancialSpacesUserIsMemberOrOwnerOf(userId);
 
@@ -35,7 +34,7 @@ namespace BuddgetWeb.Areas.User.Controllers
             var space = await _financialSpaceService.GetFinancialSpaceByIdAsync(id);
             if (space == null)
             {
-                return NotFound();
+                return View("NotFound"); // Return a specific view for not found
             }
 
             return View(space);

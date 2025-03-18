@@ -18,8 +18,8 @@ namespace Buddget.DAL.Repositories.Implementations
         public async Task<IEnumerable<FinancialSpaceMemberEntity>> GetMembersBySpaceIdAsync(int spaceId)
         {
             return await _context.FinancialSpaceMembers
+                .Include(m => m.User) // Ensure the User entity is included
                 .Where(m => m.FinancialSpaceId == spaceId)
-                .Include(m => m.User)
                 .ToListAsync();
         }
 

@@ -1,4 +1,8 @@
 ﻿@model BuddgetWeb.Areas.User.Models.MySpacesViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
 <div class="container mt-4">
     <h2 class="text-center mb-4">My Financial Spaces</h2>
     <div class="spaces-grid">
@@ -10,7 +14,7 @@
                         <h5 class="space-title">@space.Name</h5>
                         <p class="space-desc">@space.Description</p>
                         <div class="space-owner-container">
-                            <p class="space-owner">Owner: @space.OwnerName</p>
+                            <p class="space-owner">Owner: @space.OwnerName @space.OwnerLastName</p>
                         </div>
                     </div>
                     <div class="space-right">
