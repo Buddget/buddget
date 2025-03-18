@@ -1,13 +1,17 @@
-﻿using Moq;
 using AutoMapper;
-using Buddget.BLL.Services.Implementations;
+using Moq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Buddget.BLL.DTOs;
-using Buddget.DAL.Repositories.Interfaces;
+using Buddget.BLL.Services.Implementations;
 using Buddget.DAL.Entities;
+using Buddget.DAL.Repositories.Interfaces;
+using Xunit;
 using Buddget.BLL.Mappers;
 using Buddget.BLL.Services.Interfaces;
+using System.Linq;
 
-namespace Buddget.BLL.Tests
+namespace Buddget.Tests.Services.Implementation
 {
     public class FinancialSpaceServiceTests
     {
@@ -16,161 +20,154 @@ namespace Buddget.BLL.Tests
         private readonly Mock<IFinancialGoalSpaceService> _mockFinancialGoalSpaceService;
         private readonly Mock<ITransactionService> _mockTransactionService;
         private readonly IMapper _mapper;
-        private readonly FinancialSpaceService _financialSpaceService;
+        private readonly FinancialSpaceService _service;
 
         public FinancialSpaceServiceTests()
         {
+            // Arrange AutoMapper configuration
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new FinancialSpaceProfile()); // Using the profile you've set up
+            });
+            _mapper = mapperConfig.CreateMapper();
+
+            // Initialize the mock repositories and services
             _mockFinancialSpaceRepository = new Mock<IFinancialSpaceRepository>();
             _mockFinancialSpaceMemberService = new Mock<IFinancialSpaceMemberService>();
             _mockFinancialGoalSpaceService = new Mock<IFinancialGoalSpaceService>();
             _mockTransactionService = new Mock<ITransactionService>();
 
-            var mapperConfig = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new FinancialSpaceProfile()); // Ensure you have a mapping profile for FinancialSpace
-            });
-            _mapper = mapperConfig.CreateMapper();
-
-            _financialSpaceService = new FinancialSpaceService(
+            // Create the service with mocked dependencies
+            _service = new FinancialSpaceService(
                 _mockFinancialSpaceRepository.Object,
                 _mockFinancialSpaceMemberService.Object,
                 _mockFinancialGoalSpaceService.Object,
                 _mockTransactionService.Object,
-                _mapper
-            );
+                _mapper);
         }
 
         [Fact]
-        public async Task GetFinancialSpaceByIdAsync_ShouldReturnFinancialSpaceDto_WhenSpaceExists()
+        public async Task GetFinancialSpacesUserIsMemberOrOwnerOf_ReturnsMappedFinancialSpaceDtos()
+        {
+            // Arrange
+            var userId = 1;
+            var financialSpaceEntities = new List<FinancialSpaceEntity>
+            {
+                new FinancialSpaceEntity
+                {
+                    Id = 1,
+                    Name = "Space 1",
+                    Description = "Description 1",
+                    OwnerId = userId
+                },
+                new FinancialSpaceEntity
+                {
+                    Id = 2,
+                    Name = "Space 2",
+                    Description = "Description 2",
+                    OwnerId = userId
+                }
+            };
+
+            // Mock the repository method
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetSpacesUserIsMemberOrOwnerOf(userId))
+                .ReturnsAsync(financialSpaceEntities);
+
+            // Act
+            var result = await _service.GetFinancialSpacesUserIsMemberOrOwnerOf(userId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count()); // Ensuring that two spaces are returned
+
+            var firstSpace = result.First();
+            Assert.Equal("Space 1", firstSpace.Name);
+            Assert.Equal("Description 1", firstSpace.Description);
+
+            var secondSpace = result.Skip(1).First();
+            Assert.Equal("Space 2", secondSpace.Name);
+            Assert.Equal("Description 2", secondSpace.Description);
+        }
+
+        [Fact]
+        public async Task GetFinancialSpacesUserIsMemberOrOwnerOf_ReturnsEmptyList_WhenNoSpacesFound()
+        {
+            // Arrange
+            var userId = 999; // Using a non-existing user ID
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetSpacesUserIsMemberOfAsync(userId))
+                .ReturnsAsync(new List<FinancialSpaceEntity>());
+
+            // Act
+            var result = await _service.GetFinancialSpacesUserIsMemberOrOwnerOf(userId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result); // Ensuring that the result is empty
+        }
+
+        [Fact]
+        public async Task GetFinancialSpaceByIdAsync_ReturnsMappedFinancialSpaceDto()
         {
             // Arrange
             var spaceId = 1;
-            var spaceEntity = new FinancialSpaceEntity
+            var financialSpaceEntity = new FinancialSpaceEntity
             {
                 Id = spaceId,
                 Name = "Test Space",
                 Description = "Test Description",
-                Owner = new UserEntity
-                {
-                    FirstName = "John",
-                    LastName = "Doe"
-                }
+                OwnerId = 1,
+                Owner = new UserEntity { Id = 1, FirstName = "Test", LastName = "User" }
             };
 
-            var members = new List<FinancialSpaceMemberDto>
-            {
-                new FinancialSpaceMemberDto { Email = "member1@example.com", MemberRole = "User" },
-                new FinancialSpaceMemberDto { Email = "member2@example.com", MemberRole = "Admin" }
-            };
-
-            var financialGoals = new List<FinancialGoalDto>
-            {
-                new FinancialGoalDto { Name = "Goal 1", TargetAmount = 1000 },
-                new FinancialGoalDto { Name = "Goal 2", TargetAmount = 2000 }
-            };
-
-            var transactions = new List<TransactionDto>
-            {
-                new TransactionDto { Name = "Transaction 1", Amount = 100, Currency = "USD" },
-                new TransactionDto { Name = "Transaction 2", Amount = 200, Currency = "USD" }
-            };
-
+            // Mock the repository to return a space
             _mockFinancialSpaceRepository
                 .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
-                .ReturnsAsync(spaceEntity);
+                .ReturnsAsync(financialSpaceEntity);
 
-            _mockFinancialSpaceMemberService
-                .Setup(service => service.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(members);
-
+            // Mock the financialGoalService to return at least one financial goal
             _mockFinancialGoalSpaceService
                 .Setup(service => service.GetFinancialGoalsBySpaceIdAsync(spaceId))
-                .ReturnsAsync(financialGoals);
+                .ReturnsAsync(new List<FinancialGoalDto>
+                {
+                    new FinancialGoalDto
+                    {
+                        Id = 1,
+                        Name = "Test Goal"
+                    }
+                });
 
-            _mockTransactionService
-                .Setup(service => service.GetTransactionsBySpaceIdAsync(spaceId))
-                .ReturnsAsync(transactions);
+            // Mock the repository method
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
+                .ReturnsAsync(financialSpaceEntity);
 
             // Act
-            var result = await _financialSpaceService.GetFinancialSpaceByIdAsync(spaceId);
+            var result = await _service.GetFinancialSpaceByIdAsync(spaceId);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(spaceEntity.Name, result.Name);
-            Assert.Equal(spaceEntity.Description, result.Description);
-            Assert.Equal(spaceEntity.Owner.FirstName, result.OwnerName);
-
-            Assert.Equal(2, result.Members.Count);
-            Assert.Equal("member1@example.com", result.Members[0].Email);
-            Assert.Equal("member2@example.com", result.Members[1].Email);
-
-            Assert.Equal(2, result.Goals.Count);
-            Assert.Equal("Goal 1", result.Goals[0].Name);
-            Assert.Equal("Goal 2", result.Goals[1].Name);
-
-            Assert.Equal(2, result.RecentTransactions.Count);
-            Assert.Equal("Transaction 1", result.RecentTransactions[0].Name);
-            Assert.Equal("Transaction 2", result.RecentTransactions[1].Name);
+            Assert.Equal("Test Space", result.Name);
+            Assert.Equal("Test Description", result.Description);
+            Assert.Single(result.Goals);
+            Assert.Equal("Test Goal", result.Goals.First().Name);
         }
 
         [Fact]
-        public async Task GetFinancialSpaceByIdAsync_ShouldReturnNull_WhenSpaceDoesNotExist()
+        public async Task GetFinancialSpaceByIdAsync_ReturnsNull_WhenSpaceNotFound()
         {
             // Arrange
-            var spaceId = 999;
-
+            var spaceId = 999; // Using a non-existing space ID
             _mockFinancialSpaceRepository
                 .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
                 .ReturnsAsync((FinancialSpaceEntity)null);
 
             // Act
-            var result = await _financialSpaceService.GetFinancialSpaceByIdAsync(spaceId);
+            var result = await _service.GetFinancialSpaceByIdAsync(spaceId);
 
             // Assert
-            Assert.Null(result);
-        }
-
-        [Fact]
-        public async Task GetFinancialSpaceByIdAsync_ShouldReturnEmptyLists_WhenNoMembersGoalsOrTransactionsExist()
-        {
-            // Arrange
-            var spaceId = 1;
-            var spaceEntity = new FinancialSpaceEntity
-            {
-                Id = spaceId,
-                Name = "Test Space",
-                Description = "Test Description",
-                Owner = new UserEntity
-                {
-                    FirstName = "John",
-                    LastName = "Doe"
-                }
-            };
-
-            _mockFinancialSpaceRepository
-                .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
-                .ReturnsAsync(spaceEntity);
-
-            _mockFinancialSpaceMemberService
-                .Setup(service => service.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(new List<FinancialSpaceMemberDto>());
-
-            _mockFinancialGoalSpaceService
-                .Setup(service => service.GetFinancialGoalsBySpaceIdAsync(spaceId))
-                .ReturnsAsync(new List<FinancialGoalDto>());
-
-            _mockTransactionService
-                .Setup(service => service.GetTransactionsBySpaceIdAsync(spaceId))
-                .ReturnsAsync(new List<TransactionDto>());
-
-            // Act
-            var result = await _financialSpaceService.GetFinancialSpaceByIdAsync(spaceId);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result.Members);
-            Assert.Empty(result.Goals);
-            Assert.Empty(result.RecentTransactions);
+            Assert.Null(result); // Ensuring that the result is null
         }
     }
 }

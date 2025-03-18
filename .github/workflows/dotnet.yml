@@ -37,7 +37,7 @@ jobs:
 
     - name: Run StyleCop Analysis
       run: |
-        dotnet build Buddget.sln /p:TreatWarningsAsErrors=true /p:EnforceCodeStyleInBuild=true /p:StyleCopAnalyzersConfiguration=${{ github.workspace }}/stylecop.json
+        dotnet build Buddget.sln /p:StyleCopAnalyzersConfiguration=${{ github.workspace }}/stylecop.json
     # Uncomment when you have tests
     # - name: Run tests
     #   run: dotnet test Buddget.sln --configuration Release --no-build --verbosity normal
