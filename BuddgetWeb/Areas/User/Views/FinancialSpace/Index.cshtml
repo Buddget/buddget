@@ -1,76 +1,223 @@
 ﻿@model Buddget.BLL.DTOs.FinancialSpaceDto
 
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header text-center">
-            <h2>@Model.Name</h2>
-        </div>
-        <div class="card-body">
-            <p class="text-muted"><strong>Owner:</strong> @Model.OwnerName</p>
-            <p>@Model.Description</p>
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="card">
+            <div class="card-header text-center">
+                <h2>@Model.Name</h2>
+            </div>
+            <div class="card-body">
+                <p class="text-muted"><strong>Owner:</strong> @Model.OwnerName</p>
+                <p>@Model.Description</p>
+            </div>
         </div>
     </div>
 
-    <!-- Financial Goals -->
-    <div class="card mt-3">
-        <div class="card-header text-center">
-            <h4>Financial Goals</h4>
-        </div>
-        <div class="card-body">
-            <div style="max-height: 200px; overflow-y: auto;">
-                @foreach (var goal in Model.Goals)
-                {
-                    <p>@goal.Name</p>
-                }
+    <!-- Main Grid Layout -->
+    <div class="grid-layout">
+        <!-- Financial Goals Section -->
+        <div class="card goals-section">
+            <div class="card-header text-center">
+                <h4>Financial Goals</h4>
             </div>
-        </div>
-        <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
-            <i class=""></i> Add New Goal
-        </button>
-
-
-
-    </div>
-
-    <!-- Members -->
-    <div class="card mt-3">
-        <div class="card-header text-center">
-            <h4>Members</h4>
-        </div>
-        <div class="card-body">
-            <div style="max-height: 200px; overflow-y: auto;">
-                @foreach (var member in Model.Members)
-                {
-                    <p>@member.Email</p>
-                }
+            <div class="card-body">
+                <div class="scrollable-section">
+                    @foreach (var goal in Model.Goals)
+                    {
+                        <div class="goal-item">
+                            <p>@goal.Name</p>
+                        </div>
+                    }
+                </div>
             </div>
-        </div>
-        <form method="post" asp-controller="FinancialSpace" asp-action="">
-            <div class="form-group">
-                <input asp-for="" class="form-control" />
-                <span asp-validation-for="" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Invite User</button>
-        </form>
-    </div>
-
-    <!-- Recent Transactions -->
-    <div class="card mt-3">
-        <div class="card-header text-center">
-            <h4>Recent Transactions</h4>
             <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
-                <i class=""></i> See More
-            </button>
-            <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
-                <i class=""></i> Add New Transaction
+                <i class="fas fa-plus"></i> Add New Goal
             </button>
         </div>
-        <div class="card-body">
-            @foreach (var transaction in Model.RecentTransactions)
-            {
-                <p>@transaction.Name - @transaction.Amount @transaction.Currency</p>
-            }
+
+        <!-- Members Section -->
+        <div class="card members-section">
+            <div class="card-header text-center">
+                <h4>Members</h4>
+            </div>
+            <div class="card-body">
+                <div class="scrollable-section">
+                    @foreach (var member in Model.Members)
+                    {
+                        <div class="member-item">
+                            <p>@member.Email</p>
+                        </div>
+                    }
+                </div>
+            </div>
+            <form method="post" asp-controller="FinancialSpace" asp-action="">
+                <div class="form-group">
+                    <input asp-for="" class="form-control" placeholder="Enter user email" />
+                    <span asp-validation-for="" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary custom-btn">Invite User</button>
+            </form>
+        </div>
+
+        <!-- Recent Transactions Section -->
+        <div class="card transactions-section">
+            <div class="card-header text-center">
+                <h4>Recent Transactions</h4>
+                <div class="button-group">
+                    <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
+                        <i class="fas fa-eye"></i> See More
+                    </button>
+                    <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
+                        <i class="fas fa-plus"></i> Add New Transaction
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                @foreach (var transaction in Model.RecentTransactions)
+                {
+                    <div class="transaction-item">
+                        <p>@transaction.Name - @transaction.Amount @transaction.Currency</p>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* General Styles */
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    /* Container */
+    .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 1rem;
+    }
+
+    /* Header Section */
+    .header-section {
+        margin-bottom: 2rem;
+    }
+
+    /* Grid Layout */
+    .grid-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* Cards */
+    .card {
+        border-radius: 0.625rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+    .card-header {
+        background-color: #007bff;
+        color: white;
+        border-radius: 0.625rem 0.625rem 0 0;
+        font-weight: bold;
+        font-size: 1.25rem;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Buttons */
+    .btn {
+        border-radius: 0.3125rem;
+        font-weight: bold;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .custom-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        transition: background 0.3s ease, transform 0.2s ease;
+        width: 100%;
+        max-width: 12.5rem; /* 200px */
+        display: block;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .custom-btn:hover {
+        
+        background-color: #0056b3;
+        transform: scale(1.05);
+     }
+
+    /* Scrollable Sections */
+    .scrollable-section {
+        max-height: 12.5rem; /* 200px */
+        overflow-y: auto;
+        padding: 0.625rem; /* 10px */
+        background-color: #f1f1f1;
+        border-radius: 0.3125rem;
+    }
+
+    .goal-item, .member-item, .transaction-item {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        background-color: white;
+        border-radius: 0.3125rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+    }
+
+        .goal-item:hover, .member-item:hover, .transaction-item:hover {
+            transform: translateX(5px);
+        }
+
+    /* Input Fields */
+    .form-control {
+        border-radius: 0.3125rem;
+        border: 0.0625rem solid #ced4da; /* 1px */
+        font-size: 1rem;
+        padding: 0.625rem;
+        transition: border-color 0.3s ease;
+        display: block;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+    .text-danger {
+        font-size: 0.875rem; /* 14px */
+        display: block;
+        margin: 1.25rem auto;
+        text-align: center;
+    }
+
+    /* Button Group */
+    .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+</style>
