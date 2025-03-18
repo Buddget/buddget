@@ -10,10 +10,16 @@
             <div class="card-body">
                 <p class="text-muted"><strong>Owner:</strong> @Model.OwnerName</p>
                 <p>@Model.Description</p>
+                @if (Model.OwnerId == int.Parse(User.FindFirst("UserId")?.Value ?? "1"))
+                {
+                    <form action="/User/FinancialSpace/Delete/@Model.Id" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-danger mt-3">Delete Financial Space</button>
+                    </form>
+                }
             </div>
         </div>
     </div>
-
     <!-- Main Grid Layout -->
     <div class="grid-layout">
         <!-- Financial Goals Section -->

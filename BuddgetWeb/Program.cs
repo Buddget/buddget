@@ -25,7 +25,7 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Реєстрація репозиторію
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 builder.Services.AddScoped<IFinancialSpaceRepository, FinancialSpaceRepository>();
 builder.Services.AddScoped<IFinancialSpaceMemberRepository, FinancialSpaceMemberRepository>();
 builder.Services.AddScoped<IFinancialGoalSpaceRepository, FinancialGoalSpaceRepository>();
@@ -33,7 +33,7 @@ builder.Services.AddScoped<IFinancialGoalRepository, FinancialGoalRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-// Реєстрація сервісу
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 builder.Services.AddScoped<IFinancialSpaceService, FinancialSpaceService>();
 builder.Services.AddScoped<IFinancialSpaceMemberService, FinancialSpaceMemberService>();
 builder.Services.AddScoped<IFinancialGoalSpaceService, FinancialGoalSpaceService>();

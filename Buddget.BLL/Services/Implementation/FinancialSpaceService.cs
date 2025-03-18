@@ -2,6 +2,8 @@
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
 using Buddget.DAL.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Buddget.BLL.Services.Implementations
 {
@@ -12,19 +14,23 @@ namespace Buddget.BLL.Services.Implementations
         private readonly IFinancialGoalSpaceService _financialGoalSpaceService;
         private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
+        private readonly ILogger<FinancialSpaceService> _logger;
 
         public FinancialSpaceService(
             IFinancialSpaceRepository financialSpaceRepository,
             IFinancialSpaceMemberService financialSpaceMemberService,
             IFinancialGoalSpaceService financialGoalSpaceService,
             ITransactionService transactionService,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<FinancialSpaceService> logger)
         {
             _financialSpaceRepository = financialSpaceRepository;
             _financialSpaceMemberService = financialSpaceMemberService;
             _financialGoalSpaceService = financialGoalSpaceService;
             _transactionService = transactionService;
             _mapper = mapper;
+            _logger = logger;
+
         }
 
         public async Task<FinancialSpaceDto> GetFinancialSpaceByIdAsync(int spaceId)
@@ -69,5 +75,31 @@ namespace Buddget.BLL.Services.Implementations
                 OwnerLastName = space.Owner?.LastName ?? "User",
             });
         }
+
+        public async Task<bool> DeleteFinancialSpaceAsync(int id)
+        {
+
+            var space = await _financialSpaceRepository.GetFinancialSpaceAsync(id);
+            if (space == null)
+            {
+                _logger.LogWarning("Financial space with ID {SpaceId} was not found.", id);
+                return false;
+            }
+
+            try
+            {
+                await _financialSpaceRepository.DeleteAsync(space);
+
+                _logger.LogInformation("Successfully deleted financial space with ID {SpaceId}.", id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while attempting to delete financial space with ID {SpaceId}.", id);
+                return false;
+            }
+        }
+
+
     }
 }

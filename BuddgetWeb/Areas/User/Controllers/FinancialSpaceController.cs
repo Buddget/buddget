@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Buddget.BLL.Services.Implementation;
 using Buddget.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace BuddgetWeb.Areas.User.Controllers
 {
@@ -9,11 +11,13 @@ namespace BuddgetWeb.Areas.User.Controllers
     {
         private readonly IFinancialSpaceService _financialSpaceService;
         private readonly IMapper _mapper;
+        private readonly ILogger<FinancialSpaceController> _logger;
 
-        public FinancialSpaceController(IFinancialSpaceService financialSpaceService, IMapper mapper)
+        public FinancialSpaceController(IFinancialSpaceService financialSpaceService, IMapper mapper, ILogger<FinancialSpaceController> logger)
         {
             _financialSpaceService = financialSpaceService;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<IActionResult> MySpaces()
@@ -40,5 +44,18 @@ namespace BuddgetWeb.Areas.User.Controllers
 
             return View(space);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _financialSpaceService.DeleteFinancialSpaceAsync(id);
+            if (!result)
+            {
+                _logger.LogWarning("Financial space with ID {SpaceId} was not found.", id);
+                return NotFound(); 
+            }
+            return RedirectToAction(nameof(MySpaces)); 
+        }
+
     }
 }
