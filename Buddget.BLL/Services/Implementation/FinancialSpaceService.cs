@@ -30,7 +30,6 @@ namespace Buddget.BLL.Services.Implementations
             _transactionService = transactionService;
             _mapper = mapper;
             _logger = logger;
-
         }
 
         public async Task<FinancialSpaceDto> GetFinancialSpaceByIdAsync(int spaceId)
@@ -101,11 +100,8 @@ namespace Buddget.BLL.Services.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while attempting to delete financial space with ID {SpaceId}.", id);
-                return "An error occurred while deleting the financial space."; 
+                return "An error occurred while deleting the financial space.";
             }
         }
-
-
-
     }
 }

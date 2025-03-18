@@ -41,9 +41,8 @@
                     }
                 </div>
             </div>
-            <button asp-controller="FinancialSpace" asp-action="" asp-route-id="" class="btn btn-primary mx-2 custom-btn">
-                <i class="fas fa-plus"></i> Add New Goal
-            </button>
+            <button type="submit" class="btn btn-primary custom-btn">Add New Goal</button>
+
         </div>
 
         <!-- Members Section -->
@@ -142,7 +141,7 @@
         }
 
     .card-header {
-        background-color: #007bff;
+        background-color: #1e5631;
         color: white;
         border-radius: 0.625rem 0.625rem 0 0;
         font-weight: bold;
@@ -165,7 +164,7 @@
     }
 
     .custom-btn {
-        background-color: #007bff;
+        background-color: #1e5631;
         color: white;
         border: none;
         transition: background 0.3s ease, transform 0.2s ease;
@@ -177,8 +176,7 @@
     }
 
     .custom-btn:hover {
-        
-        background-color: #0056b3;
+            background-color: #145214;
         transform: scale(1.05);
      }
 
@@ -217,8 +215,8 @@
     }
 
         .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #1e5631;
+            box-shadow: 0 0 0 0.2rem rgba(30, 86, 49, 0.25);
         }
 
     .text-danger {
@@ -234,5 +232,10 @@
         justify-content: center;
         gap: 1rem;
         margin-top: 1rem;
+    }
+
+    .goals-section .custom-btn {
+        display: block;
+        margin: 1rem auto;
     }
 </style>
