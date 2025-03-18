@@ -41,6 +41,7 @@ builder.Services.AddScoped<IFinancialSpaceMemberService, FinancialSpaceMemberSer
 builder.Services.AddScoped<IFinancialGoalSpaceService, FinancialGoalSpaceService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUserService, UserService>(); // Add this line
 
 // Add mappers
 builder.Services.AddAutoMapper(
