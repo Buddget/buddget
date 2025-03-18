@@ -32,12 +32,15 @@ builder.Services.AddScoped<IFinancialGoalSpaceRepository, FinancialGoalSpaceRepo
 builder.Services.AddScoped<IFinancialGoalRepository, FinancialGoalRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
 
 // Реєстрація сервісу
 builder.Services.AddScoped<IFinancialSpaceService, FinancialSpaceService>();
 builder.Services.AddScoped<IFinancialSpaceMemberService, FinancialSpaceMemberService>();
 builder.Services.AddScoped<IFinancialGoalSpaceService, FinancialGoalSpaceService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Add mappers
 builder.Services.AddAutoMapper(
@@ -45,7 +48,8 @@ builder.Services.AddAutoMapper(
     typeof(FinancialSpaceMemberProfile),
     typeof(FinancialGoalSpaceProfile),
     typeof(TransactionProfile),
-    typeof(UserProfile)
+    typeof(UserProfile),
+    typeof(CategoryProfile)
 );
 
 // Add logger
@@ -82,6 +86,11 @@ app.MapControllerRoute(
     name: "financial-space",
     pattern: "FinancialSpace/{action=Index}/{id?}",
     defaults: new { area = "User", controller = "FinancialSpace" });
+
+app.MapControllerRoute(
+    name: "account-settings",
+    pattern: "AccountSettings/{action=CustomCategories}/{id?}",
+    defaults: new { area = "User", controller = "AccountSettings" });
 
 //app.MapControllerRoute(
 //    name: "default",

@@ -4,7 +4,7 @@ using Buddget.DAL.Repositories.Interfaces;
 using AutoMapper;
 using Buddget.DAL.Entities;
 
-namespace Buddget.Tests.Services
+namespace Buddget.Tests.Services.Implementation
 {
     public class FinancialSpaceMemberServiceTests
     {

@@ -9,7 +9,7 @@ using Buddget.DAL.Repositories.Interfaces;
 using Xunit;
 using Buddget.BLL.Mappers;
 
-namespace Buddget.Tests
+namespace Buddget.Tests.Services.Implementation
 {
     public class FinancialGoalSpaceServiceTests
     {

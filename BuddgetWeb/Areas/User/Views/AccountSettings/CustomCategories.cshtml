@@ -1,0 +1,110 @@
+﻿@model IEnumerable<Buddget.BLL.DTOs.CategoryDto>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    ViewData["Title"] = "Custom Categories";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">My Custom Categories</h2>
+    <div class="row">
+        @foreach (var category in Model)
+        {
+            <div class="col-md-3 col-lg-2 col-sm-4 col-6 mb-3">
+                <div class="category-pill" data-name="@category.Name">
+                    <h6 class="category-name">@category.Name</h6>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryPills = document.querySelectorAll('.category-pill');
+
+        categoryPills.forEach(pill => {
+            const categoryName = pill.getAttribute('data-name');
+            const colorCode = generateColorFromString(categoryName);
+            pill.style.backgroundColor = colorCode;
+
+            // Determine if text should be white or black based on background brightness
+            const rgb = hexToRgb(colorCode);
+            const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+
+            if (brightness < 128) {
+                pill.style.color = 'white';
+            } else {
+                pill.style.color = 'black';
+            }
+        });
+
+        // Function to generate color from string
+        function generateColorFromString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+
+            let color = '#';
+            for (let i = 0; i < 3; i++) {
+                const value = (hash >> (i * 8)) & 0xFF;
+                color += ('00' + value.toString(16)).substr(-2);
+            }
+
+            return color;
+        }
+
+        // Function to convert hex to RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+    });
+</script>
+
+<style>
+    .category-pill {
+        border-radius: 12px;
+        height: 80px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        text-align: center;
+        padding: 10px;
+    }
+
+        .category-pill:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+
+    .category-name {
+        font-weight: 600;
+        margin: 0;
+        font-size: 0.9rem;
+        word-wrap: break-word;
+    }
+
+    (max-width: 767px) {
+        .category-pill
+
+    {
+        height: 70px;
+    }
+
+    .category-name {
+        font-size: 0.8rem;
+    }
+
+    }
+</style>
