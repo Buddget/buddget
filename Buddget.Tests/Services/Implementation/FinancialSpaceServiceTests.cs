@@ -10,6 +10,7 @@ using Xunit;
 using Buddget.BLL.Mappers;
 using Buddget.BLL.Services.Interfaces;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Buddget.Tests.Services.Implementation
 {
@@ -21,6 +22,7 @@ namespace Buddget.Tests.Services.Implementation
         private readonly Mock<ITransactionService> _mockTransactionService;
         private readonly IMapper _mapper;
         private readonly FinancialSpaceService _service;
+        private readonly Mock<ILogger<FinancialSpaceService>> _mockLogger;
 
         public FinancialSpaceServiceTests()
         {
@@ -36,6 +38,7 @@ namespace Buddget.Tests.Services.Implementation
             _mockFinancialSpaceMemberService = new Mock<IFinancialSpaceMemberService>();
             _mockFinancialGoalSpaceService = new Mock<IFinancialGoalSpaceService>();
             _mockTransactionService = new Mock<ITransactionService>();
+            _mockLogger = new Mock<ILogger<FinancialSpaceService>>();
 
             // Create the service with mocked dependencies
             _service = new FinancialSpaceService(
@@ -43,7 +46,8 @@ namespace Buddget.Tests.Services.Implementation
                 _mockFinancialSpaceMemberService.Object,
                 _mockFinancialGoalSpaceService.Object,
                 _mockTransactionService.Object,
-                _mapper);
+            _mapper,
+                _mockLogger.Object);
         }
 
         [Fact]
@@ -169,5 +173,79 @@ namespace Buddget.Tests.Services.Implementation
             // Assert
             Assert.Null(result); // Ensuring that the result is null
         }
+        [Fact]
+        public async Task DeleteFinancialSpaceAsync_ReturnsSuccessMessage_WhenSpaceIsDeletedSuccessfully()
+        {
+            // Arrange
+            var userId = 1;
+            var spaceId = 1;
+            var financialSpaceEntity = new FinancialSpaceEntity
+            {
+                Id = spaceId,
+                Name = "Test Space",
+                Description = "Test Description",
+                OwnerId = userId,
+            };
+
+            // Mock the repository to return the financial space entity
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
+                .ReturnsAsync(financialSpaceEntity);
+
+            // Mock the DeleteAsync method to ensure it is called successfully
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.DeleteAsync(financialSpaceEntity))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _service.DeleteFinancialSpaceAsync(userId, spaceId);
+
+            // Assert
+            Assert.Equal("Financial space deleted successfully.", result); // Ensuring the success message is returned
+            _mockFinancialSpaceRepository.Verify(repo => repo.DeleteAsync(financialSpaceEntity), Times.Once); // Verify that DeleteAsync was called once
+        }
+        [Fact]
+        public async Task DeleteFinancialSpaceAsync_ReturnsNotFoundMessage_WhenSpaceNotFound()
+        {
+            // Arrange
+            var userId = 1;
+            var spaceId = 999; // Using a non-existing space ID
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
+                .ReturnsAsync((FinancialSpaceEntity)null); // Return null to simulate the space not found
+
+            // Act
+            var result = await _service.DeleteFinancialSpaceAsync(userId, spaceId);
+
+            // Assert
+            Assert.Equal("Financial space not found.", result); // Ensuring that the correct message is returned
+        }
+        [Fact]
+        public async Task DeleteFinancialSpaceAsync_ReturnsOwnershipErrorMessage_WhenUserIsNotOwner()
+        {
+            // Arrange
+            var userId = 2; // User who is not the owner
+            var spaceId = 1;
+            var financialSpaceEntity = new FinancialSpaceEntity
+            {
+                Id = spaceId,
+                Name = "Test Space",
+                Description = "Test Description",
+                OwnerId = 1, // Different owner
+            };
+
+            // Mock the repository to return the financial space entity
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
+                .ReturnsAsync(financialSpaceEntity);
+
+            // Act
+            var result = await _service.DeleteFinancialSpaceAsync(userId, spaceId);
+
+            // Assert
+            Assert.Equal("You are not the owner of this financial space.", result); // Ensuring the correct ownership error message is returned
+        }
+
+
     }
 }
