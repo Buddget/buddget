@@ -27,12 +27,6 @@ namespace Buddget.BLL.Services.Implementation
             _logger = logger;
         }
 
-        // Temporary
-        public int GenerateRandomNumber()
-            {
-                return _random.Next(1000, int.MaxValue);
-            }
-
         public async Task<IEnumerable<FinancialSpaceMemberDto>> GetMembersBySpaceIdAsync(int spaceId)
         {
             var members = await _financialSpaceMemberRepository.GetMembersBySpaceIdAsync(spaceId);
@@ -51,10 +45,23 @@ namespace Buddget.BLL.Services.Implementation
             _logger.LogInformation("Attempting to invite user with email {Email} to space ID {SpaceId}.", email, spaceId);
             try
             {
-                int randomId = GenerateRandomNumber(); 
-                CreateFinancialSpaceMemberDto createFinancialSpaceMemberDto = new CreateFinancialSpaceMemberDto
+                var user = await _userService.GetByEmailAsync(email);
+                if (user == null)
                 {
-                    UserId = 1,
+                    _logger.LogError("User with email {Email} does not exist.", email);
+                    throw new Exception($"User with email {email} does not exist.");
+                }
+
+                var spaceMember = await _financialSpaceMemberRepository.GetMembershipAsync(user.Id, spaceId);
+                if (spaceMember != null)
+                {
+                    _logger.LogError("User with email {Email} is already a member of space ID {SpaceId}.", email, spaceId);
+                    throw new Exception($"User with email {email} is already a member of space ID {spaceId}.");
+                }
+
+                var createFinancialSpaceMemberDto = new CreateFinancialSpaceMemberDto
+                {
+                    UserId = user.Id,
                     FinancialSpaceId = spaceId,
                     Role = "User",
                 };
@@ -65,8 +72,9 @@ namespace Buddget.BLL.Services.Implementation
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while inviting user {Email} to space ID {SpaceId}.", email, spaceId);
-                throw;
+                throw new Exception($"Failed to invite user {email} to space {spaceId}.", ex);
             }
         }
+
     }
 }

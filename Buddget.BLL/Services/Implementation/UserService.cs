@@ -19,5 +19,11 @@ namespace Buddget.BLL.Services.Implementation
             var created = await _userRepository.CreateAsync(entity);
             return _mapper.Map<UserDto>(created);
         }
+
+        public async Task<UserDto> GetByEmailAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+            return _mapper.Map<UserDto>(user);
+        }
     }
 }

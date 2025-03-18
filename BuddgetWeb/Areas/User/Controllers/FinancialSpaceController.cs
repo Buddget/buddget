@@ -65,8 +65,9 @@ namespace BuddgetWeb.Areas.User.Controllers
                 _logger.LogInformation("User with email {Email} invited successfully to space ID {SpaceId}.", model.UserEmail, model.SpaceId);
             }
             catch (Exception ex)
+            // TODO Add some kind of exception filter
             {
-                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+                TempData["ErrorMessage"] = $"The email already taken or it does not exist";
                 _logger.LogError(ex, "Error occurred while inviting user {Email} to space ID {SpaceId}.", model.UserEmail, model.SpaceId);
             }
 
