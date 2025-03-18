@@ -13,6 +13,8 @@ namespace Buddget.BLL.Mappers
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
                 .ForMember(dest => dest.RegisteredAt, opt => opt.MapFrom(src => src.RegisteredAt));
+
+            CreateMap<UserDto, UserEntity>();
         }
     }
 }

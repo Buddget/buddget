@@ -23,6 +23,13 @@ namespace Buddget.DAL.Repositories.Implementations
                 .ToListAsync();
         }
 
+        public async Task<FinancialSpaceMemberEntity> CreateAsync(FinancialSpaceMemberEntity createEntity)
+        {
+            var createdEntity = await _context.FinancialSpaceMembers.AddAsync(createEntity);
+            await _context.SaveChangesAsync();
+            return createdEntity.Entity;
+        }
+
         public async Task<FinancialSpaceMemberEntity> GetMembershipAsync(int userId, int spaceId)
         {
             return await _context.FinancialSpaceMembers

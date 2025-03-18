@@ -15,5 +15,9 @@ public class FinancialSpaceMemberProfile : Profile
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
             .ForMember(dest => dest.FinancialSpaceId, opt => opt.MapFrom(src => src.FinancialSpaceId))
             .ForMember(dest => dest.MemberRole, opt => opt.MapFrom(src => src.Role));
+
+        CreateMap<CreateFinancialSpaceMemberDto, FinancialSpaceMemberEntity>();
+
+        CreateMap<FinancialSpaceMemberEntity, CreateFinancialSpaceMemberDto>();
     }
 }

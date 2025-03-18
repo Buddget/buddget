@@ -6,5 +6,6 @@ namespace Buddget.DAL.Repositories.Interfaces
     {
         Task<bool> Exists(int id);
         Task<UserEntity> GetByEmailAsync(string email);
+        Task<UserEntity> CreateAsync(UserEntity entity);
     }
 }

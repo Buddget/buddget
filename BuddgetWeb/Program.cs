@@ -25,7 +25,7 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Реєстрація репозиторію
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 builder.Services.AddScoped<IFinancialSpaceRepository, FinancialSpaceRepository>();
 builder.Services.AddScoped<IFinancialSpaceMemberRepository, FinancialSpaceMemberRepository>();
 builder.Services.AddScoped<IFinancialGoalSpaceRepository, FinancialGoalSpaceRepository>();
@@ -33,11 +33,12 @@ builder.Services.AddScoped<IFinancialGoalRepository, FinancialGoalRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-// Реєстрація сервісу
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 builder.Services.AddScoped<IFinancialSpaceService, FinancialSpaceService>();
 builder.Services.AddScoped<IFinancialSpaceMemberService, FinancialSpaceMemberService>();
 builder.Services.AddScoped<IFinancialGoalSpaceService, FinancialGoalSpaceService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add mappers
 builder.Services.AddAutoMapper(
@@ -73,11 +74,18 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
+// Area route comes first
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+// Default route comes after
 app.MapControllerRoute(
     name: "default",
-    pattern: "{area=Public}/{controller=Home}/{action=Index}/{id?}",
+    pattern: "{controller=Home}/{action=Index}/{id?}",
     defaults: new { area = "Public" });
 
+// Specific route for financial space if needed
 app.MapControllerRoute(
     name: "financial-space",
     pattern: "FinancialSpace/{action=Index}/{id?}",

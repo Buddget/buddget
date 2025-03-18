@@ -21,6 +21,13 @@ namespace Buddget.DAL.Repositories.Implementations
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<UserEntity> CreateAsync(UserEntity entity)
+        {
+            var createdEntity = await _context.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return createdEntity.Entity;
+        }
+
         public async Task<bool> Exists(int id)
         {
             return await _context.Users.AnyAsync(u => u.Id == id);

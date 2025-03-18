@@ -45,14 +45,28 @@
                 }
             </div>
         </div>
-        <form method="post" asp-controller="FinancialSpace" asp-action="">
+        <form method="post" asp-area="User" asp-controller="FinancialSpace" asp-action="InviteUser">
             <div class="form-group">
-                <input asp-for="" class="form-control" />
-                <span asp-validation-for="" class="text-danger"></span>
+                <input type="email" name="userEmail" class="form-control" placeholder="Enter email" required />
+                <input type="hidden" name="spaceId" value="@Model.Id" />
             </div>
-
             <button type="submit" class="btn btn-primary">Invite User</button>
         </form>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
     </div>
 
     <!-- Recent Transactions -->
