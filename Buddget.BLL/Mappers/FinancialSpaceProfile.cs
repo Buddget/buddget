@@ -11,7 +11,8 @@ namespace Buddget.BLL.Mappers
             CreateMap<FinancialSpaceEntity, FinancialSpaceDto>()
                 .ForMember(dest => dest.Goals, opt => opt.MapFrom(src => src.FinancialGoalSpaces.Select(fgs => fgs.FinancialGoal).ToList()))
                 .ForMember(dest => dest.Members, opt => opt.MapFrom(src => src.Members))
-                .ForMember(dest => dest.RecentTransactions, opt => opt.MapFrom(src => src.Transactions));
+                .ForMember(dest => dest.RecentTransactions, opt => opt.MapFrom(src => src.Transactions))
+                .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => src.OwnerId));
             CreateMap<FinancialGoalSpaceEntity, FinancialGoalDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.FinancialGoal.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.FinancialGoal.Name))

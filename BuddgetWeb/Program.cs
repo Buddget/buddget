@@ -25,7 +25,7 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Реєстрація репозиторію
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 builder.Services.AddScoped<IFinancialSpaceRepository, FinancialSpaceRepository>();
 builder.Services.AddScoped<IFinancialSpaceMemberRepository, FinancialSpaceMemberRepository>();
 builder.Services.AddScoped<IFinancialGoalSpaceRepository, FinancialGoalSpaceRepository>();
@@ -35,7 +35,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 
-// Реєстрація сервісу
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 builder.Services.AddScoped<IFinancialSpaceService, FinancialSpaceService>();
 builder.Services.AddScoped<IFinancialSpaceMemberService, FinancialSpaceMemberService>();
 builder.Services.AddScoped<IFinancialGoalSpaceService, FinancialGoalSpaceService>();
@@ -91,6 +91,11 @@ app.MapControllerRoute(
     name: "account-settings",
     pattern: "AccountSettings/{action=CustomCategories}/{id?}",
     defaults: new { area = "User", controller = "AccountSettings" });
+
+app.MapControllerRoute(
+    name: "delete-financial-space",
+    pattern: "User/FinancialSpace/Delete",
+    defaults: new { area = "User", controller = "FinancialSpace", action = "Delete" });
 
 //app.MapControllerRoute(
 //    name: "default",
