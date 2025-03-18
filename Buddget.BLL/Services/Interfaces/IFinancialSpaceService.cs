@@ -8,7 +8,7 @@ namespace Buddget.BLL.Services.Interfaces
     {
         Task<FinancialSpaceDto> GetFinancialSpaceByIdAsync(int spaceId);
         Task<IEnumerable<FinancialSpaceDto>> GetFinancialSpacesUserIsMemberOrOwnerOf(int userId);
-        Task<bool> DeleteFinancialSpaceAsync(int id);
+        Task<string> DeleteFinancialSpaceAsync(int userId,int id);
 
     }
 }

@@ -48,13 +48,12 @@ namespace BuddgetWeb.Areas.User.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _financialSpaceService.DeleteFinancialSpaceAsync(id);
-            if (!result)
-            {
-                _logger.LogWarning("Financial space with ID {SpaceId} was not found.", id);
-                return NotFound(); 
-            }
-            return RedirectToAction(nameof(MySpaces)); 
+            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var resultMessage = await _financialSpaceService.DeleteFinancialSpaceAsync(userId, id);
+
+            TempData["Message"] = resultMessage;
+
+            return RedirectToAction(nameof(MySpaces));
         }
 
     }

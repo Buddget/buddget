@@ -76,29 +76,34 @@ namespace Buddget.BLL.Services.Implementations
             });
         }
 
-        public async Task<bool> DeleteFinancialSpaceAsync(int id)
+        public async Task<string> DeleteFinancialSpaceAsync(int userId, int id)
         {
-
             var space = await _financialSpaceRepository.GetFinancialSpaceAsync(id);
             if (space == null)
             {
                 _logger.LogWarning("Financial space with ID {SpaceId} was not found.", id);
-                return false;
+                return "Financial space not found.";
+            }
+
+            if (space.OwnerId != userId)
+            {
+                _logger.LogWarning("User with ID {UserId} is not the owner of financial space with ID {SpaceId}.", userId, id);
+                return "You are not the owner of this financial space.";
             }
 
             try
             {
                 await _financialSpaceRepository.DeleteAsync(space);
-
                 _logger.LogInformation("Successfully deleted financial space with ID {SpaceId}.", id);
-                return true;
+                return "Financial space deleted successfully.";
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while attempting to delete financial space with ID {SpaceId}.", id);
-                return false;
+                return "An error occurred while deleting the financial space."; 
             }
         }
+
 
 
     }

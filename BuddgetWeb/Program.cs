@@ -83,6 +83,11 @@ app.MapControllerRoute(
     pattern: "FinancialSpace/{action=Index}/{id?}",
     defaults: new { area = "User", controller = "FinancialSpace" });
 
+app.MapControllerRoute(
+    name: "delete-financial-space",
+    pattern: "User/FinancialSpace/Delete",
+    defaults: new { area = "User", controller = "FinancialSpace", action = "Delete" });
+
 //app.MapControllerRoute(
 //    name: "default",
 //    pattern: "{area=Public}/{controller=Home}/{action=Index}/{id?}",

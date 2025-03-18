@@ -173,18 +173,18 @@ namespace Buddget.Tests.Services.Implementation
             // Assert
             Assert.Null(result); // Ensuring that the result is null
         }
-
         [Fact]
-        public async Task DeleteFinancialSpaceAsync_ReturnsTrue_WhenSpaceIsDeletedSuccessfully()
+        public async Task DeleteFinancialSpaceAsync_ReturnsSuccessMessage_WhenSpaceIsDeletedSuccessfully()
         {
             // Arrange
+            var userId = 1;
             var spaceId = 1;
             var financialSpaceEntity = new FinancialSpaceEntity
             {
                 Id = spaceId,
                 Name = "Test Space",
                 Description = "Test Description",
-                OwnerId = 1,
+                OwnerId = userId,
             };
 
             // Mock the repository to return the financial space entity
@@ -198,38 +198,40 @@ namespace Buddget.Tests.Services.Implementation
                 .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _service.DeleteFinancialSpaceAsync(spaceId);
+            var result = await _service.DeleteFinancialSpaceAsync(userId, spaceId);
 
             // Assert
-            Assert.True(result); // Ensuring that the deletion was successful
+            Assert.Equal("Financial space deleted successfully.", result); // Ensuring the success message is returned
             _mockFinancialSpaceRepository.Verify(repo => repo.DeleteAsync(financialSpaceEntity), Times.Once); // Verify that DeleteAsync was called once
         }
         [Fact]
-        public async Task DeleteFinancialSpaceAsync_ReturnsFalse_WhenSpaceNotFound()
+        public async Task DeleteFinancialSpaceAsync_ReturnsNotFoundMessage_WhenSpaceNotFound()
         {
             // Arrange
+            var userId = 1;
             var spaceId = 999; // Using a non-existing space ID
             _mockFinancialSpaceRepository
                 .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
                 .ReturnsAsync((FinancialSpaceEntity)null); // Return null to simulate the space not found
 
             // Act
-            var result = await _service.DeleteFinancialSpaceAsync(spaceId);
+            var result = await _service.DeleteFinancialSpaceAsync(userId, spaceId);
 
             // Assert
-            Assert.False(result); // Ensuring that the result is false because the space was not found
+            Assert.Equal("Financial space not found.", result); // Ensuring that the correct message is returned
         }
         [Fact]
-        public async Task DeleteFinancialSpaceAsync_ReturnsFalse_WhenExceptionIsThrownDuringDelete()
+        public async Task DeleteFinancialSpaceAsync_ReturnsOwnershipErrorMessage_WhenUserIsNotOwner()
         {
             // Arrange
+            var userId = 2; // User who is not the owner
             var spaceId = 1;
             var financialSpaceEntity = new FinancialSpaceEntity
             {
                 Id = spaceId,
                 Name = "Test Space",
                 Description = "Test Description",
-                OwnerId = 1,
+                OwnerId = 1, // Different owner
             };
 
             // Mock the repository to return the financial space entity
@@ -237,18 +239,13 @@ namespace Buddget.Tests.Services.Implementation
                 .Setup(repo => repo.GetFinancialSpaceAsync(spaceId))
                 .ReturnsAsync(financialSpaceEntity);
 
-            // Mock the DeleteAsync method to throw an exception
-            _mockFinancialSpaceRepository
-                .Setup(repo => repo.DeleteAsync(financialSpaceEntity))
-                .ThrowsAsync(new System.Exception("Database error"));
-
             // Act
-            var result = await _service.DeleteFinancialSpaceAsync(spaceId);
+            var result = await _service.DeleteFinancialSpaceAsync(userId, spaceId);
 
             // Assert
-            Assert.False(result); // Ensuring that the result is false due to the exception
-            _mockFinancialSpaceRepository.Verify(repo => repo.DeleteAsync(financialSpaceEntity), Times.Once); // Verify that DeleteAsync was called once
+            Assert.Equal("You are not the owner of this financial space.", result); // Ensuring the correct ownership error message is returned
         }
+
 
     }
 }

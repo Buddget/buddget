@@ -1,6 +1,7 @@
 ﻿@model Buddget.BLL.DTOs.FinancialSpaceDto
 
 <div class="container mt-4">
+   
     <!-- Header Section -->
     <div class="header-section">
         <div class="card">
@@ -12,7 +13,7 @@
                 <p>@Model.Description</p>
                 @if (Model.OwnerId == int.Parse(User.FindFirst("UserId")?.Value ?? "1"))
                 {
-                    <form action="/User/FinancialSpace/Delete/@Model.Id" method="post">
+                    <form action="@Url.Action("Delete", "FinancialSpace", new { area = "User" })" method="post">
                         <input type="hidden" name="id" value="@Model.Id" />
                         <button type="submit" class="btn btn-danger mt-3">Delete Financial Space</button>
                     </form>
@@ -65,7 +66,12 @@
                 <button type="submit" class="btn btn-primary custom-btn">Invite User</button>
             </form>
         </div>
-
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert @(TempData["Message"].ToString().StartsWith("Successfully") ? "alert-success" : "alert-danger") mt-3">
+                @TempData["Message"]
+            </div>
+        }
         <!-- Recent Transactions Section -->
         <div class="card transactions-section">
             <div class="card-header text-center">
