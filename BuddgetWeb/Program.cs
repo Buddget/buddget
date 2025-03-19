@@ -25,19 +25,20 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// ��������� ����������
 builder.Services.AddScoped<IFinancialSpaceRepository, FinancialSpaceRepository>();
 builder.Services.AddScoped<IFinancialSpaceMemberRepository, FinancialSpaceMemberRepository>();
 builder.Services.AddScoped<IFinancialGoalSpaceRepository, FinancialGoalSpaceRepository>();
 builder.Services.AddScoped<IFinancialGoalRepository, FinancialGoalRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
-// ��������� ������
 builder.Services.AddScoped<IFinancialSpaceService, FinancialSpaceService>();
 builder.Services.AddScoped<IFinancialSpaceMemberService, FinancialSpaceMemberService>();
 builder.Services.AddScoped<IFinancialGoalSpaceService, FinancialGoalSpaceService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUserService, UserService>(); // Add this line
 
 // Add mappers
 builder.Services.AddAutoMapper(
@@ -45,8 +46,8 @@ builder.Services.AddAutoMapper(
     typeof(FinancialSpaceMemberProfile),
     typeof(FinancialGoalSpaceProfile),
     typeof(TransactionProfile),
-    typeof(UserProfile)
-);
+    typeof(UserProfile),
+    typeof(CategoryProfile));
 
 // Add logger
 builder.Host.UseSerilog((context, loggerConfig) =>
@@ -84,13 +85,13 @@ app.MapControllerRoute(
     defaults: new { area = "User", controller = "FinancialSpace" });
 
 app.MapControllerRoute(
+    name: "account-settings",
+    pattern: "AccountSettings/{action=CustomCategories}/{id?}",
+    defaults: new { area = "User", controller = "AccountSettings" });
+
+app.MapControllerRoute(
     name: "delete-financial-space",
     pattern: "User/FinancialSpace/Delete",
     defaults: new { area = "User", controller = "FinancialSpace", action = "Delete" });
-
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{area=Public}/{controller=Home}/{action=Index}/{id?}",
-//    defaults: new { area = "Public" });
 
 app.Run();

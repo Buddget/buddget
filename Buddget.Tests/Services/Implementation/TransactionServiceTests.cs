@@ -6,7 +6,7 @@ using Buddget.DAL.Repositories.Interfaces;
 using Buddget.BLL.Mappers;
 using Buddget.DAL.Entities;
 
-namespace Buddget.BLL.Tests
+namespace Buddget.Tests.Services.Implementation
 {
     public class TransactionServiceTests
     {
