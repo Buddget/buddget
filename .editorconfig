@@ -3,7 +3,7 @@ root = true
 [**/Migrations/**]
 dotnet_analyzer_diagnostic.severity = none
 
-[Buddget.Tests/**.cs]
+[Buddget.Tests/Services/Implementation]
 dotnet_analyzer_diagnostic.severity = none
 
 # C# files
