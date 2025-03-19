@@ -68,9 +68,9 @@
                 <button type="submit" class="btn btn-primary custom-btn">Invite User</button>
             </form>
         </div>
-        @if (TempData["Message"] != null)
+        @if (TempData?["Message"]?.ToString() != null)
         {
-            <div class="alert @(TempData["Message"].ToString().StartsWith("Successfully") ? "alert-success" : "alert-danger") mt-3">
+            <div class="alert @(TempData["Message"]?.ToString()?.StartsWith("Successfully") == true ? "alert-success" : "alert-danger") mt-3">
                 @TempData["Message"]
             </div>
         }
