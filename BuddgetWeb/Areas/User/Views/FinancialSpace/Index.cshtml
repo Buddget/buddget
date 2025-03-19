@@ -54,13 +54,20 @@
                 <div class="scrollable-section">
                     @foreach (var member in Model.Members)
                     {
-                        <div class="member-item">
-                            <p>@member.Email</p>
-                        </div>
+	                    <div class="member-item">
+		                    @if (member.MemberRole == "Owner")
+		                    {
+			                    <p style="color: #FCBA03">@member.Email</p>
+		                    }
+		                    else
+		                    {
+			                    <p>@member.Email</p>
+		                    }
+	                    </div>
                     }
                 </div>
             </div>
-            <form method="post" asp-controller="FinancialSpace" asp-action="">
+            <form method="post" asp-controller="FinancialSpace" asp-action="" style="margin-bottom: 1rem;">
                 <div class="form-group">
                     <input asp-for="" class="form-control" placeholder="Enter user email" />
                     <span asp-validation-for="" class="text-danger"></span>
