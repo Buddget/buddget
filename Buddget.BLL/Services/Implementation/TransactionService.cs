@@ -1,9 +1,7 @@
-﻿using Buddget.BLL.Services.Interfaces;
-using Buddget.DAL.Repositories.Interfaces;
-using AutoMapper;
+﻿using AutoMapper;
 using Buddget.BLL.DTOs;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Buddget.BLL.Services.Interfaces;
+using Buddget.DAL.Repositories.Interfaces;
 
 namespace Buddget.BLL.Services.Implementations
 {

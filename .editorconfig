@@ -3,8 +3,13 @@ root = true
 [**/Migrations/**]
 dotnet_analyzer_diagnostic.severity = none
 
-[Buddget.Tests/Services/Implementation]
+# Ignore tests folder completely
+[**/Buddget.Tests/**]
 dotnet_analyzer_diagnostic.severity = none
+
+# Default settings for all files
+[*]
+dotnet_diagnostic.SA0001.severity = none
 
 # C# files
 [*.cs]
@@ -27,8 +32,7 @@ dotnet_diagnostic.SA1600.severity = none
 # SA1011: Closing square brackets should be spaced correctly
 dotnet_diagnostic.SA1011.severity = none
 
+# CSHTML files
 [*.cshtml]
 dotnet_diagnostic.CS8602.severity = none
-
-[*]
-dotnet_diagnostic.MSB3277.severity = none
+dotnet_diagnostic.TS6385.severity = none

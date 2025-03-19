@@ -42,6 +42,5 @@ namespace Buddget.BLL.Services.Implementation
 
             return memberDtos;
         }
-
     }
 }

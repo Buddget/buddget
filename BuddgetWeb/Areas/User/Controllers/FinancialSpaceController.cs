@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Buddget.BLL.Services.Implementation;
 using Buddget.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace BuddgetWeb.Areas.User.Controllers
 {
@@ -27,7 +25,7 @@ namespace BuddgetWeb.Areas.User.Controllers
 
             var viewModel = new BuddgetWeb.Areas.User.Models.MySpacesViewModel
             {
-                FinancialSpaces = spaces.ToList()
+                FinancialSpaces = spaces.ToList(),
             };
 
             return View(viewModel);
@@ -54,6 +52,5 @@ namespace BuddgetWeb.Areas.User.Controllers
 
             return RedirectToAction(nameof(MySpaces));
         }
-
     }
 }

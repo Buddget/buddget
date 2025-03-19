@@ -1,10 +1,10 @@
-﻿using Moq;
-using AutoMapper;
-using Buddget.BLL.Services.Implementations;
+﻿using AutoMapper;
 using Buddget.BLL.DTOs;
-using Buddget.DAL.Repositories.Interfaces;
 using Buddget.BLL.Mappers;
+using Buddget.BLL.Services.Implementations;
 using Buddget.DAL.Entities;
+using Buddget.DAL.Repositories.Interfaces;
+using Moq;
 
 namespace Buddget.Tests.Services.Implementation
 {

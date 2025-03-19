@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
+using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Buddget.BLL.Services.Implementations
 {
@@ -22,6 +21,37 @@ namespace Buddget.BLL.Services.Implementations
         {
             var categories = await _categoryRepository.GetCategoriesByUserIdAsync(userId);
             return _mapper.Map<IEnumerable<CategoryDto>>(categories);
+        }
+
+        public async Task<bool> AddCustomCategoryAsync(int userId, string categoryName)
+        {
+            var existingCategory = await _categoryRepository.GetFirstWhereAsync(c => c.UserId == userId && c.Name == categoryName);
+            if (existingCategory != null)
+            {
+                return false;
+            }
+
+            var newCategory = new CategoryEntity
+            {
+                UserId = userId,
+                Name = categoryName,
+                IsDefault = false,
+            };
+
+            await _categoryRepository.AddAsync(newCategory);
+            return true;
+        }
+
+        public async Task<bool> DeleteCustomCategoryAsync(int userId, int categoryId)
+        {
+            var category = await _categoryRepository.GetFirstWhereAsync(c => c.UserId == userId && c.Id == categoryId);
+            if (category == null)
+            {
+                return false;
+            }
+
+            await _categoryRepository.DeleteAsync(category);
+            return true;
         }
     }
 }
