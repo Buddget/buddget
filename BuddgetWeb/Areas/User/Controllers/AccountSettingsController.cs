@@ -1,7 +1,5 @@
 ﻿using Buddget.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace BuddgetWeb.Areas.User.Controllers
 {
@@ -35,7 +33,7 @@ namespace BuddgetWeb.Areas.User.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCategory([FromBody] AddCategoryRequest request)
         {
-            int userId = 1;
+            int userId = 1; // PLUG
             var success = await _categoryService.AddCustomCategoryAsync(userId, request.CategoryName);
             if (success)
             {
@@ -44,6 +42,21 @@ namespace BuddgetWeb.Areas.User.Controllers
             else
             {
                 return Json(new { success = false, message = "Category already exists." });
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            int userId = 1; // PLUG
+            var success = await _categoryService.DeleteCustomCategoryAsync(userId, id);
+            if (success)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Category not found." });
             }
         }
 

@@ -97,5 +97,40 @@ namespace Buddget.Tests.Services.Implementation
             Assert.NotNull(result);
             Assert.Empty(result);
         }
+
+        [Fact]
+        public async Task DeleteCustomCategoryAsync_SuccessfullyDeletesCategory()
+        {
+            // Arrange
+            int userId = 1;
+            int categoryId = 1;
+            var category = new CategoryEntity { Id = categoryId, UserId = userId, Name = "Category to Delete" };
+            _mockCategoryRepository.Setup(repo => repo.GetFirstWhereAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<CategoryEntity, bool>>>()))
+                .ReturnsAsync(category);
+
+            // Act
+            var result = await _categoryService.DeleteCustomCategoryAsync(userId, categoryId);
+
+            // Assert
+            Assert.True(result);
+            _mockCategoryRepository.Verify(repo => repo.DeleteAsync(It.Is<CategoryEntity>(c => c.Id == categoryId && c.UserId == userId)), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteCustomCategoryAsync_CategoryNotFound_ReturnsFalse()
+        {
+            // Arrange
+            int userId = 1;
+            int categoryId = 1;
+            _mockCategoryRepository.Setup(repo => repo.GetFirstWhereAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<CategoryEntity, bool>>>()))
+                .ReturnsAsync((CategoryEntity)null);
+
+            // Act
+            var result = await _categoryService.DeleteCustomCategoryAsync(userId, categoryId);
+
+            // Assert
+            Assert.False(result);
+            _mockCategoryRepository.Verify(repo => repo.DeleteAsync(It.IsAny<CategoryEntity>()), Times.Never);
+        }
     }
 }

@@ -41,5 +41,17 @@ namespace Buddget.BLL.Services.Implementations
             await _categoryRepository.AddAsync(newCategory);
             return true;
         }
+
+        public async Task<bool> DeleteCustomCategoryAsync(int userId, int categoryId)
+        {
+            var category = await _categoryRepository.GetFirstWhereAsync(c => c.UserId == userId && c.Id == categoryId);
+            if (category == null)
+            {
+                return false;
+            }
+
+            await _categoryRepository.DeleteAsync(category);
+            return true;
+        }
     }
 }
