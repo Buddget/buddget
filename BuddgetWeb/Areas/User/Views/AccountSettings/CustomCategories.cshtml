@@ -18,7 +18,50 @@
             </div>
         }
     </div>
+    <div class="row mt-4 justify-content-center">
+        <div class="col-12 col-md-6 col-lg-4">
+            <form id="addCategoryForm" class="floating-form">
+                @Html.AntiForgeryToken()
+                <h2 class="text-center mb-4">Add a Custom Category</h2>
+                <div class="input-group">
+                    <input type="text" id="newCategoryName" class="form-control" placeholder="Enter category name" />
+                    <button type="button" id="addCategoryButton" class="btn custom-btn">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addCategoryButton = document.getElementById('addCategoryButton');
+        const newCategoryNameInput = document.getElementById('newCategoryName');
+
+        addCategoryButton.addEventListener('click', async function() {
+            const categoryName = newCategoryNameInput.value.trim();
+            if (!categoryName) {
+                alert('Please enter a category name.');
+                return;
+            }
+
+            const response = await fetch('/User/AccountSettings/AddCategory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ categoryName })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                location.reload();
+            } else {
+                alert(result.message);
+            }
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -40,7 +83,6 @@
             }
         });
 
-        // Function to generate color from string
         function generateColorFromString(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -56,7 +98,6 @@
             return color;
         }
 
-        // Function to convert hex to RGB
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? {
@@ -95,16 +136,45 @@
         word-wrap: break-word;
     }
 
-    (max-width: 767px) {
-        .category-pill
-
-    {
-        height: 70px;
+    .floating-form {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
     }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+    }
+
+        .input-group .form-control {
+            flex: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .input-group .btn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+    .custom-btn {
+        background-color: #17632d;
+        color: white;
+        border: none;
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+        .custom-btn:hover {
+            background-color: #145214;
+            color: white;
+            transform: scale(1.05);
+        }
 
     .category-name {
         font-size: 0.8rem;
     }
 
-    }
 </style>

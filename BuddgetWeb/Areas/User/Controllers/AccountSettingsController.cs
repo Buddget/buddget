@@ -9,7 +9,7 @@ namespace BuddgetWeb.Areas.User.Controllers
     public class AccountSettingsController : Controller
     {
         private readonly ICategoryService _categoryService;
-        private readonly IUserService _userService; // Add IUserService to check if user exists
+        private readonly IUserService _userService;
         private readonly ILogger<AccountSettingsController> _logger;
 
         public AccountSettingsController(ICategoryService categoryService, IUserService userService, ILogger<AccountSettingsController> logger)
@@ -21,7 +21,6 @@ namespace BuddgetWeb.Areas.User.Controllers
 
         public async Task<IActionResult> CustomCategories(int userId = 1)
         {
-            // Check if the user exists
             var userExists = await _userService.UserExistsAsync(userId);
             if (!userExists)
             {
@@ -31,6 +30,26 @@ namespace BuddgetWeb.Areas.User.Controllers
 
             var categories = await _categoryService.GetCustomCategoriesByUserIdAsync(userId);
             return View(categories);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCategory([FromBody] AddCategoryRequest request)
+        {
+            int userId = 1;
+            var success = await _categoryService.AddCustomCategoryAsync(userId, request.CategoryName);
+            if (success)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Category already exists." });
+            }
+        }
+
+        public class AddCategoryRequest
+        {
+            public string CategoryName { get; set; }
         }
     }
 }
