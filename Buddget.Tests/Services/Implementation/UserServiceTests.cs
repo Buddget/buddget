@@ -1,6 +1,11 @@
 ﻿using Moq;
 using Buddget.BLL.Services.Implementations;
 using Buddget.DAL.Repositories.Interfaces;
+using Buddget.DAL.Entities;
+using AutoMapper;
+using Buddget.BLL.Mappers;
+using Buddget.BLL.DTOs;
+using Buddget.BLL.Exceptions;
 
 
 namespace Buddget.Tests.Services.Implementation
@@ -8,12 +13,18 @@ namespace Buddget.Tests.Services.Implementation
     public class UserServiceTests
     {
         private readonly Mock<IUserRepository> _mockUserRepository;
+        private readonly IMapper _mapper;
         private readonly UserService _userService;
 
         public UserServiceTests()
         {
             _mockUserRepository = new Mock<IUserRepository>();
-            _userService = new UserService(_mockUserRepository.Object);
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new UserProfile());
+            });
+            _mapper = mapperConfig.CreateMapper();
+            _userService = new UserService(_mockUserRepository.Object, _mapper);
         }
 
         [Fact]
@@ -44,6 +55,89 @@ namespace Buddget.Tests.Services.Implementation
             // Assert
             Assert.False(result);
             _mockUserRepository.Verify(repo => repo.Exists(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserByIdAsync_UserExists_ReturnsUserDto()
+        {
+            // Arrange
+            int userId = 1;
+            var userEntity = new UserEntity
+            {
+                Id = userId,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                Role = "user",
+                RegisteredAt = DateTime.UtcNow
+            };
+
+            _mockUserRepository.Setup(repo => repo.GetByIdAsync(userId)).ReturnsAsync(userEntity);
+
+            // Act
+            var result = await _userService.GetUserByIdAsync(userId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(userId, result.Id);
+            Assert.Equal("John", result.FirstName);
+            Assert.Equal("Doe", result.LastName);
+            Assert.Equal("john.doe@example.com", result.Email);
+            _mockUserRepository.Verify(repo => repo.GetByIdAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserByIdAsync_UserDoesNotExist_ThrowsNotFoundException()
+        {
+            // Arrange
+            int userId = 1;
+            _mockUserRepository.Setup(repo => repo.GetByIdAsync(userId)).ReturnsAsync((UserEntity)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _userService.GetUserByIdAsync(userId));
+            Assert.Equal($"User with ID {userId} not found.", exception.Message);
+            _mockUserRepository.Verify(repo => repo.GetByIdAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserByEmailAsync_UserExists_ReturnsUserDto()
+        {
+            // Arrange
+            string email = "john.doe@example.com";
+            var userEntity = new UserEntity
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = email,
+                Role = "user",
+                RegisteredAt = DateTime.UtcNow
+            };
+
+            _mockUserRepository.Setup(repo => repo.GetByEmailAsync(email)).ReturnsAsync(userEntity);
+
+            // Act
+            var result = await _userService.GetUserByEmailAsync(email);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(email, result.Email);
+            Assert.Equal("John", result.FirstName);
+            Assert.Equal("Doe", result.LastName);
+            _mockUserRepository.Verify(repo => repo.GetByEmailAsync(email), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserByEmailAsync_UserDoesNotExist_ThrowsNotFoundException()
+        {
+            // Arrange
+            string email = "nonexistent@example.com";
+            _mockUserRepository.Setup(repo => repo.GetByEmailAsync(email)).ReturnsAsync((UserEntity)null);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _userService.GetUserByEmailAsync(email));
+            Assert.Equal($"User with email '{email}' not found.", exception.Message);
+            _mockUserRepository.Verify(repo => repo.GetByEmailAsync(email), Times.Once);
         }
     }
 }

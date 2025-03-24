@@ -86,7 +86,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "account-settings",
-    pattern: "AccountSettings/{action=CustomCategories}/{id?}",
+    pattern: "AccountSettings/{action=AccountSettings}/{id?}",
     defaults: new { area = "User", controller = "AccountSettings" });
 
 app.MapControllerRoute(
