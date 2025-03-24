@@ -2,6 +2,7 @@
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Exceptions;
 using Buddget.BLL.Services.Interfaces;
+using Buddget.BLL.Utilities;
 using Buddget.DAL.Repositories.Interfaces;
 
 namespace Buddget.BLL.Services.Implementations
@@ -22,26 +23,28 @@ namespace Buddget.BLL.Services.Implementations
             return await _userRepository.Exists(userId);
         }
 
-        public async Task<UserDto> GetUserByIdAsync(int userId)
+        public async Task<Result<UserDto>> GetUserByIdAsync(int userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
             {
-                throw new NotFoundException($"User with ID {userId} not found.");
+                return Result<UserDto>.FailureResult($"User with ID {userId} not found.");
             }
 
-            return _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserDto>(user);
+            return Result<UserDto>.SuccessResult(userDto);
         }
 
-        public async Task<UserDto> GetUserByEmailAsync(string email)
+        public async Task<Result<UserDto>> GetUserByEmailAsync(string email)
         {
             var user = await _userRepository.GetByEmailAsync(email);
             if (user == null)
             {
-                throw new NotFoundException($"User with email '{email}' not found.");
+                return Result<UserDto>.FailureResult($"User with email '{email}' not found.");
             }
 
-            return _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserDto>(user);
+            return Result<UserDto>.SuccessResult(userDto);
         }
     }
 }

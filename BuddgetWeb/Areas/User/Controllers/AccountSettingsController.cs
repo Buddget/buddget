@@ -27,14 +27,22 @@ namespace BuddgetWeb.Areas.User.Controllers
                 return NotFound("User not found.");
             }
 
-            var user = await _userService.GetUserByIdAsync(userId);
+            var userResult = await _userService.GetUserByIdAsync(userId);
+            if (!userResult.Success)
+            {
+                _logger.LogWarning(userResult.ErrorMessage);
+                return NotFound(userResult.ErrorMessage);
+            }
+
             var categories = await _categoryService.GetCustomCategoriesByUserIdAsync(userId);
+
             var accountSettingsViewModel = new AccountSettingsViewModel
             {
-                User = user,
+                User = userResult.Value,
                 Categories = categories,
             };
 
+            _logger.LogDebug("Returning AccountSettingsViewModel");
             return View(accountSettingsViewModel);
         }
 

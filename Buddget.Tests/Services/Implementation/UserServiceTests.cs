@@ -76,26 +76,30 @@ namespace Buddget.Tests.Services.Implementation
 
             // Act
             var result = await _userService.GetUserByIdAsync(userId);
+            var userDto = result.Value;
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(userId, result.Id);
-            Assert.Equal("John", result.FirstName);
-            Assert.Equal("Doe", result.LastName);
-            Assert.Equal("john.doe@example.com", result.Email);
+            Assert.True(result.Success);
+            Assert.NotNull(result.Value);
+            Assert.Equal("john.doe@example.com", result.Value.Email);
+            Assert.Equal("John", result.Value.FirstName);
+            Assert.Equal("Doe", result.Value.LastName);
             _mockUserRepository.Verify(repo => repo.GetByIdAsync(userId), Times.Once);
         }
 
         [Fact]
-        public async Task GetUserByIdAsync_UserDoesNotExist_ThrowsNotFoundException()
+        public async Task GetUserByIdAsync_UserDoesNotExist_ReturnsFailureResult()
         {
             // Arrange
             int userId = 1;
             _mockUserRepository.Setup(repo => repo.GetByIdAsync(userId)).ReturnsAsync((UserEntity)null);
 
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _userService.GetUserByIdAsync(userId));
-            Assert.Equal($"User with ID {userId} not found.", exception.Message);
+            // Act
+            var result = await _userService.GetUserByIdAsync(userId);
+
+            // Assert
+            Assert.False(result.Success);
+            Assert.Equal($"User with ID {userId} not found.", result.ErrorMessage);
             _mockUserRepository.Verify(repo => repo.GetByIdAsync(userId), Times.Once);
         }
 
@@ -120,24 +124,29 @@ namespace Buddget.Tests.Services.Implementation
             var result = await _userService.GetUserByEmailAsync(email);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(email, result.Email);
-            Assert.Equal("John", result.FirstName);
-            Assert.Equal("Doe", result.LastName);
+            Assert.True(result.Success);
+            Assert.NotNull(result.Value);
+            Assert.Equal(email, result.Value.Email);
+            Assert.Equal("John", result.Value.FirstName);
+            Assert.Equal("Doe", result.Value.LastName);
             _mockUserRepository.Verify(repo => repo.GetByEmailAsync(email), Times.Once);
         }
 
         [Fact]
-        public async Task GetUserByEmailAsync_UserDoesNotExist_ThrowsNotFoundException()
+        public async Task GetUserByEmailAsync_UserDoesNotExist_ReturnsFailureResult()
         {
             // Arrange
             string email = "nonexistent@example.com";
             _mockUserRepository.Setup(repo => repo.GetByEmailAsync(email)).ReturnsAsync((UserEntity)null);
 
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _userService.GetUserByEmailAsync(email));
-            Assert.Equal($"User with email '{email}' not found.", exception.Message);
+            // Act
+            var result = await _userService.GetUserByEmailAsync(email);
+
+            // Assert
+            Assert.False(result.Success);
+            Assert.Equal($"User with email '{email}' not found.", result.ErrorMessage);
             _mockUserRepository.Verify(repo => repo.GetByEmailAsync(email), Times.Once);
         }
+
     }
 }
