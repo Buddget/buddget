@@ -92,5 +92,60 @@ namespace Buddget.Tests.Services.Implementation
             Assert.Empty(result);
             _mockFinancialSpaceMemberRepository.Verify(repo => repo.GetMembersBySpaceIdAsync(spaceId), Times.Once);
         }
+
+        [Fact]
+        public async Task GetBannedMembersBySpaceIdAsync_ReturnsMappedBannedMembers()
+        {
+            // Arrange
+            var spaceId = 1;
+            var bannedMembers = new List<FinancialSpaceMemberEntity>
+    {
+        new FinancialSpaceMemberEntity
+        {
+            Id = 3,
+            FinancialSpaceId = spaceId,
+            UserId = 3,
+            Role = "Banned",
+            FinancialSpace = new FinancialSpaceEntity { Id = spaceId, Name = "Financial Space 1" },
+            User = new UserEntity { Id = 3, FirstName = "Alice", LastName = "Smith", Email = "alice.smith@example.com", Role = "user", RegisteredAt = DateTime.Now }
+        }
+    };
+
+            // Mock the repository method
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(bannedMembers);
+
+            // Act
+            var result = await _service.GetBannedMembersBySpaceIdAsync(spaceId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal("Alice", result.First().FirstName);
+            Assert.Equal("Banned", result.First().MemberRole);
+            _mockFinancialSpaceMemberRepository.Verify(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetBannedMembersBySpaceIdAsync_ReturnsEmptyList_WhenNoBannedMembers()
+        {
+            // Arrange
+            var spaceId = 1;
+            var bannedMembers = new List<FinancialSpaceMemberEntity>();
+
+            // Mock the repository method
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(bannedMembers);
+
+            // Act
+            var result = await _service.GetBannedMembersBySpaceIdAsync(spaceId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Empty(result);
+            _mockFinancialSpaceMemberRepository.Verify(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId), Times.Once);
+        }
     }
 }

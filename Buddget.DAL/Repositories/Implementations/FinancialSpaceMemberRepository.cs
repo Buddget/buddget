@@ -19,7 +19,15 @@ namespace Buddget.DAL.Repositories.Implementations
         {
             return await _context.FinancialSpaceMembers
                 .Include(m => m.User) // Ensure the User entity is included
-                .Where(m => m.FinancialSpaceId == spaceId)
+                .Where(m => m.FinancialSpaceId == spaceId && m.Role != "Banned")
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<FinancialSpaceMemberEntity>> GetBannedMembersBySpaceIdAsync(int spaceId)
+        {
+            return await _context.FinancialSpaceMembers
+                .Include(m => m.User) // Ensure the User entity is included
+                .Where(m => m.FinancialSpaceId == spaceId && m.Role == "Banned")
                 .ToListAsync();
         }
 
