@@ -1,15 +1,36 @@
-﻿@model IEnumerable<Buddget.BLL.DTOs.CategoryDto>
+﻿@model BuddgetWeb.Areas.User.Models.AccountSettingsViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @{
-    ViewData["Title"] = "Custom Categories";
+    ViewData["Title"] = "Account Settings";
 }
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="user-info-card">
+                <h3 class="text-center mb-3">Welcome, @Model.User.FirstName @Model.User.LastName</h3>
+                <p class="text-center mb-2 user-info-item"><strong>Email:</strong> @Model.User.Email</p>
+                <p class="text-center mb-2 user-info-item"><strong>Role:</strong> @Model.User.Role</p>
+                <p class="text-center mb-3 user-info-item"><strong>Registered on:</strong> @Model.User.RegisteredAt.ToString("MMMM dd, yyyy")</p>
+
+                <div class="text-center mt-4">
+                    <button class="btn custom-btn mb-3">Extract Data</button>
+                    <button class="btn custom-btn mb-3">Change Password</button>
+                    <button class="btn btn-danger mb-3">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <div class="container mt-4">
     <h2 class="text-center mb-4">My Custom Categories</h2>
     <div class="row">
-        @foreach (var category in Model)
+        @foreach (var category in Model.Categories)
         {
             <div class="col-auto mb-3">
                 <div class="category-pill" data-id="@category.Id" data-name="@category.Name">
@@ -461,4 +482,42 @@
             background-color: #0069d9;
             transform: scale(1.05);
         }
+
+    .user-info-layout {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .user-info-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+        .user-info-card h3 {
+            font-size: 1.8rem;
+            color: #333;
+        }
+
+    .user-info-item {
+        font-size: 1.1rem;
+        color: #555;
+    }
+
+        .user-info-item strong {
+            color: #17632d;
+        }
+
+    .user-info-card .mb-3 {
+        margin-bottom: 20px;
+    }
+
+    .user-info-card .mb-2 {
+        margin-bottom: 15px;
+    }
 </style>

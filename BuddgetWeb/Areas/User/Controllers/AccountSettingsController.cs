@@ -1,4 +1,5 @@
 ﻿using Buddget.BLL.Services.Interfaces;
+using BuddgetWeb.Areas.User.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuddgetWeb.Areas.User.Controllers
@@ -17,7 +18,7 @@ namespace BuddgetWeb.Areas.User.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> CustomCategories(int userId = 1)
+        public async Task<IActionResult> AccountSettings(int userId = 1)
         {
             var userExists = await _userService.UserExistsAsync(userId);
             if (!userExists)
@@ -26,8 +27,23 @@ namespace BuddgetWeb.Areas.User.Controllers
                 return NotFound("User not found.");
             }
 
+            var userResult = await _userService.GetUserByIdAsync(userId);
+            if (!userResult.Success)
+            {
+                _logger.LogWarning(userResult.ErrorMessage);
+                return NotFound(userResult.ErrorMessage);
+            }
+
             var categories = await _categoryService.GetCustomCategoriesByUserIdAsync(userId);
-            return View(categories);
+
+            var accountSettingsViewModel = new AccountSettingsViewModel
+            {
+                User = userResult.Value,
+                Categories = categories,
+            };
+
+            _logger.LogDebug("Returning AccountSettingsViewModel");
+            return View(accountSettingsViewModel);
         }
 
         [HttpPost]
