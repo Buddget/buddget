@@ -44,6 +44,9 @@ namespace Buddget.BLL.Services.Implementations
             // Get members of the space
             var members = await _financialSpaceMemberService.GetMembersBySpaceIdAsync(spaceId);
 
+            // Get banned members of the space
+            var bannedMembers = await _financialSpaceMemberService.GetBannedMembersBySpaceIdAsync(spaceId);
+
             // Get financial goals of the space
             var financialGoals = await _financialGoalSpaceService.GetFinancialGoalsBySpaceIdAsync(spaceId);
 
@@ -55,6 +58,7 @@ namespace Buddget.BLL.Services.Implementations
             spaceDto.OwnerName = spaceEntity.Owner.FirstName + " " + spaceEntity.Owner.LastName;
             spaceDto.Goals = financialGoals.ToList();
             spaceDto.Members = members.ToList();
+            spaceDto.BannedMembers = bannedMembers.ToList();
             spaceDto.RecentTransactions = transactions.ToList();
 
             return spaceDto;

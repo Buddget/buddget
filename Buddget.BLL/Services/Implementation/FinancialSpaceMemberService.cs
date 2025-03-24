@@ -42,5 +42,28 @@ namespace Buddget.BLL.Services.Implementation
 
             return memberDtos;
         }
+
+        public async Task<IEnumerable<FinancialSpaceMemberDto>> GetBannedMembersBySpaceIdAsync(int spaceId)
+        {
+            var members = await _financialSpaceMemberRepository.GetBannedMembersBySpaceIdAsync(spaceId);
+            var memberDtos = new List<FinancialSpaceMemberDto>();
+            foreach (var member in members)
+            {
+                var memberDto = new FinancialSpaceMemberDto
+                {
+                    Id = member.User?.Id ?? 0,
+                    FirstName = member.User?.FirstName ?? "N/A",
+                    LastName = member.User?.LastName ?? "N/A",
+                    Email = member.User?.Email ?? "N/A",
+                    RegisteredAt = member.User?.RegisteredAt ?? DateTime.MinValue,
+                    Role = member.Role,
+                    FinancialSpaceId = member.FinancialSpaceId,
+                    MemberRole = member.Role,
+                };
+                memberDtos.Add(memberDto);
+            }
+
+            return memberDtos;
+        }
     }
 }
