@@ -6,5 +6,7 @@ namespace Buddget.BLL.Services.Interfaces
     {
         Task<IEnumerable<FinancialSpaceMemberDto>> GetMembersBySpaceIdAsync(int spaceId);
         Task<IEnumerable<FinancialSpaceMemberDto>> GetBannedMembersBySpaceIdAsync(int spaceId);
+        Task<string> BanMemberAsync(int spaceId, int memberId, int requestingUserId);
+
     }
 }

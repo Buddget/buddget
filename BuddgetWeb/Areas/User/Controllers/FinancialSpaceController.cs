@@ -8,12 +8,14 @@ namespace BuddgetWeb.Areas.User.Controllers
     public class FinancialSpaceController : Controller
     {
         private readonly IFinancialSpaceService _financialSpaceService;
+        private readonly IFinancialSpaceMemberService _financialSpaceMemberService;
         private readonly IMapper _mapper;
         private readonly ILogger<FinancialSpaceController> _logger;
 
-        public FinancialSpaceController(IFinancialSpaceService financialSpaceService, IMapper mapper, ILogger<FinancialSpaceController> logger)
+        public FinancialSpaceController(IFinancialSpaceService financialSpaceService, IFinancialSpaceMemberService financialSpaceMemberService, IMapper mapper, ILogger<FinancialSpaceController> logger)
         {
             _financialSpaceService = financialSpaceService;
+            _financialSpaceMemberService = financialSpaceMemberService;
             _mapper = mapper;
             _logger = logger;
         }
@@ -51,6 +53,27 @@ namespace BuddgetWeb.Areas.User.Controllers
             TempData["Message"] = resultMessage;
 
             return RedirectToAction(nameof(MySpaces));
+        }
+        [HttpPost]
+        public async Task<IActionResult> BanMember(int spaceId, int memberId)
+        {   
+            var requestingUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+
+
+            try
+            {
+                _logger.LogInformation("Banning member {MemberId} from space {SpaceId}", memberId, spaceId);
+                var resultMessage = await _financialSpaceMemberService.BanMemberAsync(spaceId, memberId, requestingUserId);
+                _logger.LogInformation("Member {MemberId} banned from space {SpaceId}", memberId, spaceId);
+                TempData["Message"] = resultMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error banning member {MemberId} from space {SpaceId}", memberId, spaceId);
+                TempData["Message"] = "An unexpected error occurred while trying to ban the member.";
+            }
+
+            return RedirectToAction(nameof(Index), new { id = spaceId });
         }
     }
 }
