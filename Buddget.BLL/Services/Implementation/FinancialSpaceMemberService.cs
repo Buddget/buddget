@@ -65,5 +65,53 @@ namespace Buddget.BLL.Services.Implementation
 
             return memberDtos;
         }
+        public async Task<string> BanMemberAsync(int spaceId, int memberId, int requestingUserId)
+        {
+            try
+            {
+                var members = await _financialSpaceMemberRepository.GetMembersBySpaceIdAsync(spaceId);
+
+                var owner = members.FirstOrDefault(m => m.Role == "Owner");
+
+                if (owner == null || owner.UserId != requestingUserId)
+                {
+                    return "Only the owner of the financial space can ban members.";
+                }
+                var memberToBan = members.FirstOrDefault(m => m.UserId == memberId);
+
+                if (memberToBan == null)
+                {
+                    return "Member not found in this financial space.";
+                }
+
+                if (memberToBan.Role == "Owner")
+                {
+                    return "Cannot ban the owner of the financial space.";
+                }
+
+                var bannedMembers = await _financialSpaceMemberRepository.GetBannedMembersBySpaceIdAsync(spaceId);
+                if (bannedMembers.Any(m => m.UserId == memberId))
+                {
+                    return "Member is already banned from this financial space.";
+                }
+
+                memberToBan.Role = "Banned";
+
+                try
+                {
+                    await _financialSpaceMemberRepository.UpdateAsync(memberToBan);
+                    return "Member has been successfully banned from the financial space.";
+                }
+                catch
+                {
+                    return "Failed to ban member. Please try again later.";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return $"An error occurred while banning the member: {ex.Message}";
+            }
+        }
     }
 }
