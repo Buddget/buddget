@@ -19,12 +19,15 @@ namespace Buddget.DAL.Repositories.Implementations
         {
             return await _context.Transactions
                 .Where(t => t.UserId == userId)
+                .Include(t => t.User)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<TransactionEntity>> GetTransactionsBySpaceIdAsync(int spaceId)
         {
-            return await _context.Transactions
+            return await _context.Set<TransactionEntity>()
+                .Include(t => t.User)
+                .Include(t => t.Category)
                 .Where(t => t.FinancialSpaceId == spaceId)
                 .ToListAsync();
         }
@@ -33,6 +36,8 @@ namespace Buddget.DAL.Repositories.Implementations
         {
             return await _context.Transactions
                 .Where(t => t.CategoryId == categoryId)
+                .Include(t => t.User)
+                .Include(t => t.Category)
                 .ToListAsync();
         }
     }

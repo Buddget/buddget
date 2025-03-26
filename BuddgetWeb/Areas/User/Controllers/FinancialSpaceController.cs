@@ -38,7 +38,7 @@ namespace BuddgetWeb.Areas.User.Controllers
             var space = await _financialSpaceService.GetFinancialSpaceByIdAsync(id);
             if (space == null)
             {
-                return View("NotFound"); // Return a specific view for not found
+                return View("NotFound");
             }
 
             return View(space);
@@ -54,11 +54,11 @@ namespace BuddgetWeb.Areas.User.Controllers
 
             return RedirectToAction(nameof(MySpaces));
         }
+
         [HttpPost]
         public async Task<IActionResult> BanMember(int spaceId, int memberId)
-        {   
+        {
             var requestingUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
-
 
             try
             {

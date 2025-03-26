@@ -87,6 +87,23 @@ namespace Buddget.DAL.DataAccess
                         .HasForeignKey(e => e.FinancialGoalId)
                         .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<CategoryEntity>(entity =>
+            {
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.Categories)
+                    .HasForeignKey(e => e.UserId);
+            });
+
+            modelBuilder.Entity<TransactionEntity>(entity =>
+            {
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.Transactions)
+                    .HasForeignKey(e => e.UserId);
+                entity.HasOne(e => e.FinancialSpace)
+                    .WithMany(f => f.Transactions)
+                    .HasForeignKey(e => e.FinancialSpaceId);
+            });
         }
     }
 }
