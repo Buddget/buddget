@@ -1,0 +1,494 @@
+﻿@model TransactionsViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="/User/FinancialSpace/Index/@Model.FinancialSpaceId" class="btn btn-outline-light back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Financial Space
+                </a>
+                <div class="text-center mx-auto">
+                    <h2>Transactions of @Model.FinancialSpaceName</h2>
+                    <p class="mb-0">Owner: @Model.FinancialSpaceOwner</p>
+                </div>
+                <div style="width: 70px;"><!-- Empty div for balance --></div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="transactionsTable">
+                    <thead>
+                        <tr>
+                            <th class="resizable col-id">Id</th>
+                            <th class="resizable col-name">Name</th>
+                            <th class="resizable col-amount text-center">Amount</th>
+                            <th class="resizable col-currency text-center">Currency</th>
+                            <th class="resizable col-type text-center">Type</th>
+                            <th class="resizable col-category text-center">Category</th>
+                            <th class="resizable col-description">Description</th>
+                            <th class="resizable col-date">Date</th>
+                            <th class="resizable col-author">Added By</th>
+                            <th class="resizable col-actions text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in Model.Transactions)
+                        {
+                            <tr>
+                                <td>@transaction.Id</td>
+                                <td>@transaction.Name</td>
+                                <td class="text-center">@transaction.Amount</td>
+                                <td class="text-center">@transaction.Currency</td>
+                                <td class="text-center" style="color: @(transaction.Type == "Income" ? "green" : "red")">@transaction.Type</td>
+                                <td class="category-cell"><span class="category-badge" data-category="@transaction.CategoryName">@transaction.CategoryName</span></td>
+                                <td>@transaction.Description</td>
+                                <td>@transaction.Date.ToString("MM/dd/yyyy HH:mm:ss")</td>
+                                <td>@transaction.AuthorName</td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="edit-btn" data-id="@transaction.Id">✎</button>
+                                        <button class="delete-btn" data-id="@transaction.Id">×</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <a href="/Transaction/Create/@Model.FinancialSpaceId" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add Transaction
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply category colors
+            const categoryBadges = document.querySelectorAll('.category-badge');
+            categoryBadges.forEach(badge => {
+                const categoryName = badge.getAttribute('data-category');
+                const colorCode = generateColorFromString(categoryName);
+                badge.style.backgroundColor = colorCode;
+                badge.style.color = 'white';
+            });
+
+            setupResizableTable();
+
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Delete transaction ID:', this.getAttribute('data-id'));
+                });
+            });
+
+            const editButtons = document.querySelectorAll('.edit-btn');
+            editButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Edit transaction ID:', this.getAttribute('data-id'));
+                });
+            });
+
+            // Setup load more button (if present)
+            const loadMoreBtn = document.querySelector('.load-more-btn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', function() {
+                    console.log('Loading more transactions...');
+                    // You would implement pagination logic here later
+                });
+            }
+        });
+
+        // Column resizing functionality
+        function setupResizableTable() {
+            const table = document.getElementById('transactionsTable');
+            const headers = table.querySelectorAll('th.resizable');
+
+            headers.forEach(header => {
+                const resizer = document.createElement('div');
+                resizer.classList.add('resizer');
+                header.appendChild(resizer);
+
+                let startX, startWidth;
+
+                // Column resize logic
+                function initResize(e) {
+                    startX = e.clientX;
+                    startWidth = parseInt(window.getComputedStyle(header).width, 10);
+
+                    document.addEventListener('mousemove', resize);
+                    document.addEventListener('mouseup', stopResize);
+
+                    // Add class for styling during resize
+                    header.classList.add('resizing');
+                }
+
+                function resize(e) {
+                    const width = startWidth + (e.clientX - startX);
+                    if (width > 50) { // Minimum width
+                        header.style.width = `${width}px`;
+                    }
+                }
+
+                function stopResize() {
+                    document.removeEventListener('mousemove', resize);
+                    document.removeEventListener('mouseup', stopResize);
+
+                    // Remove resizing class
+                    header.classList.remove('resizing');
+
+                    // Save the column widths to localStorage if you want them to persist
+                    saveColumnWidths();
+                }
+
+                resizer.addEventListener('mousedown', initResize);
+            });
+
+            // Load saved column widths if any
+            loadColumnWidths();
+        }
+
+        // Save column widths to localStorage
+        function saveColumnWidths() {
+            const headers = document.querySelectorAll('#transactionsTable th.resizable');
+            const widths = Array.from(headers).map(header => header.style.width || window.getComputedStyle(header).width);
+            localStorage.setItem('transactionTableColumnWidths', JSON.stringify(widths));
+        }
+
+        // Load column widths from localStorage
+        function loadColumnWidths() {
+            const savedWidths = localStorage.getItem('transactionTableColumnWidths');
+            if (savedWidths) {
+                const widths = JSON.parse(savedWidths);
+                const headers = document.querySelectorAll('#transactionsTable th.resizable');
+
+                headers.forEach((header, index) => {
+                    if (widths[index]) {
+                        header.style.width = widths[index];
+                    }
+                });
+            }
+        }
+    </script>
+}
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .card {
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: none;
+        margin-bottom: 2rem;
+    }
+
+    .card-header {
+        background-color: #1e5631;
+        color: white;
+        border-radius: 8px 8px 0 0;
+        padding: 0.75rem 1rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0.75rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    /* Action buttons at bottom */
+    .btn-success {
+        background-color: #1e5631;
+        border-color: #1e5631;
+    }
+
+        .btn-success:hover {
+            background-color: #163f24;
+            border-color: #163f24;
+        }
+
+    .btn-outline-success {
+        color: #1e5631;
+        border-color: #1e5631;
+    }
+
+        .btn-outline-success:hover {
+            background-color: #1e5631;
+            color: white;
+            border-color: #1e5631;
+        }
+
+        .btn-outline-success:focus,
+        .btn-outline-success:active,
+        .btn-success:focus,
+        .btn-success:active {
+            box-shadow: 0 0 0 0.25rem rgba(30, 86, 49, 0.25);
+        }
+
+    .table {
+        margin-bottom: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+        width: 100%;
+    }
+
+        .table th {
+            background-color: #f1f1f1;
+            color: #333;
+            font-weight: 600;
+            border-top: none;
+            padding: 0.6rem;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: left;
+        }
+
+            .table th.text-center {
+                text-align: center;
+            }
+
+        .table td {
+            padding: 0.5rem 0.6rem;
+            vertical-align: middle;
+            font-size: 0.85rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            height: 40px;
+            border-top: none;
+            border-bottom: none;
+        }
+
+        .table tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+            .table tr:hover {
+                background-color: #f8f9fa;
+            }
+
+    .actions-cell {
+        padding: 0.5rem 0.3rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        height: 100%;
+    }
+
+    .resizable {
+        position: relative;
+    }
+
+    .resizer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 5px;
+        height: 100%;
+        background-color: transparent;
+        cursor: col-resize;
+    }
+
+        .resizer:hover,
+        .resizing .resizer {
+            background-color: #c8c8c8;
+        }
+
+    th.resizing {
+        user-select: none;
+    }
+
+    .col-id {
+        width: 5%;
+    }
+
+    .col-name {
+        width: 12%;
+    }
+
+    .col-amount {
+        width: 8%;
+    }
+
+    .col-currency {
+        width: 7%;
+    }
+
+    .col-type {
+        width: 8%;
+    }
+
+    .col-category {
+        width: 12%;
+    }
+
+    .col-description {
+        width: 17%;
+    }
+
+    .col-date {
+        width: 13%;
+    }
+
+    .col-author {
+        width: 10%;
+    }
+
+    .col-actions {
+        width: 8%;
+    }
+
+    .category-cell {
+        text-align: center;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-align: center;
+        white-space: nowrap;
+        margin: 0 auto;
+    }
+
+    .edit-btn, .delete-btn {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: none;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        font-weight: bold;
+        transition: background-color 0.2s, transform 0.1s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        position: relative;
+    }
+
+        .edit-btn:hover, .delete-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .edit-btn:active, .delete-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+    .delete-btn {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .delete-btn::after {
+            content: "×";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            line-height: 0;
+        }
+
+    .edit-btn {
+        background-color: white;
+        color: #333;
+        border: 1px solid #dee2e6;
+    }
+
+        .edit-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #c1c9d0;
+        }
+
+        .edit-btn::after {
+            content: "✎";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            line-height: 0;
+        }
+
+    .edit-btn, .delete-btn {
+        font-size: 0;
+    }
+
+        .edit-btn::after {
+            font-size: 14px;
+        }
+
+        .delete-btn::after {
+            font-size: 16px;
+        }
+
+    /* Make table responsive */
+    .table-responsive {
+        overflow-x: auto;
+        margin-bottom: 1rem;
+    }
+
+        /* Better scrollbars */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+            .table-responsive::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+</style>

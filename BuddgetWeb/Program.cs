@@ -94,4 +94,10 @@ app.MapControllerRoute(
     pattern: "User/FinancialSpace/Delete",
     defaults: new { area = "User", controller = "FinancialSpace", action = "Delete" });
 
+app.MapAreaControllerRoute(
+    name: "transactions",
+    areaName: "User",
+    pattern: "User/Transactions/History",
+    defaults: new { controller = "Transaction", action = "Index" });
+
 app.Run();
