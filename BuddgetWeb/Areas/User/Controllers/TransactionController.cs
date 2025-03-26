@@ -43,5 +43,20 @@ namespace BuddgetWeb.Areas.User.Controllers
                 FinancialSpaceOwner = financialSpace.OwnerName,
             });
         }
+
+        [HttpPost]
+        [Route("User/Transactions/Delete")]
+        public async Task<IActionResult> Delete(int transactionId, int financialSpaceId)
+        {
+            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+
+            _logger.LogInformation($"User {userId} attempting to delete transaction {transactionId} from financial space {financialSpaceId}");
+
+            var resultMessage = await _transactionService.DeleteTransactionAsync(transactionId, userId);
+
+            TempData["Message"] = resultMessage;
+
+            return RedirectToAction(nameof(Index), new { id = financialSpaceId });
+        }
     }
 }

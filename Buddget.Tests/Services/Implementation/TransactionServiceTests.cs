@@ -11,6 +11,7 @@ namespace Buddget.Tests.Services.Implementation
     public class TransactionServiceTests
     {
         private readonly Mock<ITransactionRepository> _mockTransactionRepository;
+        private readonly Mock<IFinancialSpaceRepository> _mockFinancialSpaceRepository;
         private readonly IMapper _mapper;
         private readonly TransactionService _transactionService;
         private readonly Mock<ILogger<TransactionService>> _mockLogger;
@@ -24,10 +25,12 @@ namespace Buddget.Tests.Services.Implementation
             _mapper = mapperConfig.CreateMapper();
 
             _mockTransactionRepository = new Mock<ITransactionRepository>();
+            _mockFinancialSpaceRepository = new Mock<IFinancialSpaceRepository>();
             _mockLogger = new Mock<ILogger<TransactionService>>();
 
             _transactionService = new TransactionService(
                 _mockTransactionRepository.Object,
+                _mockFinancialSpaceRepository.Object,
                 _mapper,
                 _mockLogger.Object);
         }
@@ -94,6 +97,82 @@ namespace Buddget.Tests.Services.Implementation
             // Assert
             Assert.NotNull(result);
             Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task DeleteTransactionAsync_SuccessfullyDeletesTransaction()
+        {
+            // Arrange
+            int transactionId = 1;
+            int userId = 1;
+            var transaction = new TransactionEntity
+            {
+                Id = transactionId,
+                UserId = userId,
+                FinancialSpaceId = 1
+            };
+            var financialSpace = new FinancialSpaceEntity
+            {
+                Id = 1,
+                OwnerId = userId
+            };
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync(transaction);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(transaction.FinancialSpaceId)).ReturnsAsync(financialSpace);
+            _mockTransactionRepository.Setup(repo => repo.DeleteAsync(transaction)).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _transactionService.DeleteTransactionAsync(transactionId, userId);
+
+            // Assert
+            Assert.Equal("Transaction deleted successfully.", result);
+            _mockTransactionRepository.Verify(repo => repo.DeleteAsync(transaction), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteTransactionAsync_ReturnsError_WhenTransactionNotFound()
+        {
+            // Arrange
+            int transactionId = 1;
+            int userId = 1;
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync((TransactionEntity)null);
+
+            // Act
+            var result = await _transactionService.DeleteTransactionAsync(transactionId, userId);
+
+            // Assert
+            Assert.Equal("Transaction not found.", result);
+            _mockTransactionRepository.Verify(repo => repo.GetByIdAsync(transactionId), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteTransactionAsync_ReturnsError_WhenUserNotAuthorized()
+        {
+            // Arrange
+            int transactionId = 1;
+            int userId = 1;
+            var transaction = new TransactionEntity
+            {
+                Id = transactionId,
+                UserId = 2,
+                FinancialSpaceId = 1
+            };
+            var financialSpace = new FinancialSpaceEntity
+            {
+                Id = 1,
+                OwnerId = 3
+            };
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync(transaction);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(transaction.FinancialSpaceId)).ReturnsAsync(financialSpace);
+
+            // Act
+            var result = await _transactionService.DeleteTransactionAsync(transactionId, userId);
+
+            // Assert
+            Assert.Equal("You are not authorized to delete this transaction.", result);
+            _mockTransactionRepository.Verify(repo => repo.GetByIdAsync(transactionId), Times.Once);
         }
     }
 }
