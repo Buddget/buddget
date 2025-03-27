@@ -52,6 +52,7 @@ namespace Buddget.DAL.Repositories.Implementations
         {
             var space = await _context.FinancialSpaces
                 .Include(fs => fs.Owner)
+                .Include(fs => fs.Members)
                 .FirstOrDefaultAsync(fs => fs.Id == id);
 
             return space;

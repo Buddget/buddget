@@ -23,6 +23,12 @@ namespace Buddget.BLL.Mappers
             CreateMap<FinancialGoalEntity, FinancialGoalDto>();
             CreateMap<FinancialSpaceMemberEntity, FinancialSpaceMemberDto>();
             CreateMap<TransactionEntity, TransactionDto>();
+
+            CreateMap<FinancialSpaceDto, FinancialSpaceEntity>()
+                .ForMember(dest => dest.Owner, opt => opt.Ignore())
+                .ForMember(dest => dest.FinancialGoalSpaces, opt => opt.Ignore())
+                .ForMember(dest => dest.Members, opt => opt.Ignore())
+                .ForMember(dest => dest.Transactions, opt => opt.Ignore());
         }
     }
 }

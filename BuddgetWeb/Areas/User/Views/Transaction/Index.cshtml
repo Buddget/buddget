@@ -2,6 +2,7 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@using Buddget.BLL.Enums;
 
 <div class="container mt-4">
     <div class="card">
@@ -22,15 +23,87 @@
                 <table class="table table-hover" id="transactionsTable">
                     <thead>
                         <tr>
-                            <th class="resizable col-id">Id</th>
-                            <th class="resizable col-name">Name</th>
-                            <th class="resizable col-amount text-center">Amount</th>
-                            <th class="resizable col-currency text-center">Currency</th>
-                            <th class="resizable col-type text-center">Type</th>
-                            <th class="resizable col-category text-center">Category</th>
-                            <th class="resizable col-description">Description</th>
-                            <th class="resizable col-date">Date</th>
-                            <th class="resizable col-author">Added By</th>
+                            <th class="resizable col-id">
+                                <a href="@Url.Action("Index", new { financialSpaceId = @Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Id, ascending = @Model.SortColumn == TransactionSortColumnEnum.Id ? !@Model.Ascending : true })">
+                                    Id
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Id && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Id && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="resizable col-name">
+                                <a href="@Url.Action("Index", new { financialSpaceId = @Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Name, ascending = @Model.SortColumn == TransactionSortColumnEnum.Name ? !@Model.Ascending : true })">
+                                    Name
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Name && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Name && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="resizable col-amount text-center">
+                                <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Amount, ascending = Model.SortColumn == TransactionSortColumnEnum.Amount ? !Model.Ascending : true })">
+                                    Amount
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Amount && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Amount && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="resizable col-currency text-center">
+                                <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Currency, ascending = Model.SortColumn == TransactionSortColumnEnum.Currency ? !Model.Ascending : true })">
+                                    Currency
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Currency && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Currency && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="resizable col-type text-center">
+                                <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Type, ascending = Model.SortColumn == TransactionSortColumnEnum.Type ? !Model.Ascending : true })">
+                                    Type
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Type && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Type && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="resizable col-category text-center">
+                                <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.CategoryName, ascending = Model.SortColumn == TransactionSortColumnEnum.CategoryName ? !Model.Ascending : true })">
+                                    Category
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.CategoryName && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.CategoryName && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="resizable col-description">
+                                <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Description, ascending = Model.SortColumn == TransactionSortColumnEnum.Description ? !Model.Ascending : true })">
+                                    Description
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Description && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Description && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="resizable col-date">
+                                <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Date, ascending = Model.SortColumn == TransactionSortColumnEnum.Date ? !Model.Ascending : true })">
+                                    Date
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Date && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Date && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="resizable col-author">
+                                <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.AuthorName, ascending = Model.SortColumn == TransactionSortColumnEnum.AuthorName ? !Model.Ascending : true })">
+                                    Added By
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.AuthorName && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.AuthorName && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
                             <th class="resizable col-actions text-center">Actions</th>
                         </tr>
                     </thead>
@@ -50,7 +123,45 @@
                                 <td class="actions-cell">
                                     <div class="action-buttons">
                                         <button class="edit-btn" data-id="@transaction.Id">✎</button>
-                                        <button class="delete-btn" data-id="@transaction.Id">×</button>
+                                        <form method="post" action="@Url.Action("Delete", "Transaction", new { area = "User" })">
+                                            <input type="hidden" name="transactionId" value="@transaction.Id" />
+                                            <input type="hidden" name="financialSpaceId" value="@Model.FinancialSpaceId" />
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="delete-btn"></button>
+                                        </form>
+                                        <div class="move-dropdown-container">
+                                            <button type="button" class="move-btn" title="Move to another space" data-transaction-id="@transaction.Id">⇄</button>
+                                        </div>
+
+                                        <!-- Add this at the end of your body element, outside any tables or other containers -->
+                                        <div class="move-dropdown-backdrop"></div>
+                                        <div class="move-dropdown">
+                                            <div class="dropdown-header">
+                                                <i class="fas fa-exchange-alt me-2"></i> Select New Financial Space for Transaction
+                                            </div>
+                                            <div class="dropdown-content">
+                                                <form method="post" action="@Url.Action("Move", "Transaction", new { area = "User" })">
+                                                    <input type="hidden" name="transactionId" id="moveTransactionId" value="" />
+                                                    <input type="hidden" name="financialSpaceId" value="@Model.FinancialSpaceId" />
+                                                    @Html.AntiForgeryToken()
+                                                    <div class="form-group">
+                                                        <select name="targetSpaceId" id="targetSpaceId" class="form-select">
+                                                            @foreach (var space in Model.UserSpaces)
+                                                            {
+                                                                if (space.Id != Model.FinancialSpaceId)
+                                                                {
+                                                                    <option value="@space.Id">@space.Name</option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div class="move-dropdown-buttons">
+                                                        <button type="button" class="move-cancel-btn">Cancel</button>
+                                                        <button type="submit" class="move-confirm-btn">Move</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -83,11 +194,14 @@
 
             setupResizableTable();
 
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
+            const deleteForms = document.querySelectorAll('.actions-cell form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    console.log('Delete transaction ID:', this.getAttribute('data-id'));
+
+                    if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+                        this.submit();
+                    }
                 });
             });
 
@@ -107,8 +221,51 @@
                     // You would implement pagination logic here later
                 });
             }
+
+            // Replace your move button handling code with this
+            const moveButtons = document.querySelectorAll('.move-btn');
+            const moveDropdown = document.querySelector('.move-dropdown');
+            const moveDropdownBackdrop = document.querySelector('.move-dropdown-backdrop');
+            const moveTransactionIdInput = document.getElementById('moveTransactionId');
+            const moveCancelBtn = document.querySelector('.move-cancel-btn');
+
+            // Open the popup when clicking the move button
+            moveButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Set the transaction ID in the hidden input
+                    const transactionId = this.closest('.action-buttons').querySelector('.edit-btn').getAttribute('data-id');
+                    moveTransactionIdInput.value = transactionId;
+
+                    // Show the backdrop and dropdown
+                    moveDropdownBackdrop.classList.add('show');
+                    moveDropdown.classList.add('show');
+                });
+            });
+
+            // Close the popup when clicking cancel or backdrop
+            [moveCancelBtn, moveDropdownBackdrop].forEach(element => {
+                element.addEventListener('click', function() {
+                    moveDropdownBackdrop.classList.remove('show');
+                    moveDropdown.classList.remove('show');
+                });
         });
 
+        // Prevent popup from closing when clicking inside it
+        moveDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        });
+        // Close dropdowns when clicking elsewhere
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.move-dropdown') && !e.target.closest('.move-btn')) {
+                document.querySelectorAll('.move-dropdown.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
         // Column resizing functionality
         function setupResizableTable() {
             const table = document.getElementById('transactionsTable');
@@ -179,6 +336,38 @@
                 });
             }
         }
+
+        function deleteTransaction(button) {
+            if (!confirm('Are you sure you want to delete this transaction?')) return;
+
+            console.log("Deleting transaction");
+
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '@Url.Action("Delete", "Transaction", new { area = "User" })';
+
+            ['transactionId', 'financialSpaceId'].forEach(name => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = button.getAttribute(`data-${name.replace('Id', '-id')}`);
+                form.appendChild(input);
+            });
+
+            // Add anti-forgery token if present
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token) {
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = token.value;
+                form.appendChild(tokenInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
     </script>
 }
 
@@ -280,6 +469,22 @@
                 text-align: center;
             }
 
+            .table th a {
+                color: #333;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                justify-content: inherit;
+            }
+
+            .table th.text-center a {
+                justify-content: center;
+            }
+
+            .table th a:hover {
+                color: #1e5631;
+            }
+
         .table td {
             padding: 0.5rem 0.6rem;
             vertical-align: middle;
@@ -300,10 +505,6 @@
                 background-color: #f8f9fa;
             }
 
-    .actions-cell {
-        padding: 0.5rem 0.3rem;
-    }
-
     .action-buttons {
         display: flex;
         justify-content: center;
@@ -311,6 +512,23 @@
         gap: 8px;
         height: 100%;
     }
+
+    .actions-cell form,
+    .actions-cell .edit-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 22px; /* Match the button height */
+        padding: 0;
+        margin: 0;
+    }
+
+        .actions-cell form button.delete-btn {
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
 
     .resizable {
         position: relative;
@@ -491,4 +709,187 @@
             .table-responsive::-webkit-scrollbar-thumb:hover {
                 background: #a8a8a8;
             }
+
+    /* Sort arrows styling */
+    .sort-arrows {
+        display: inline-flex;
+        flex-direction: column;
+        margin-left: 0.3rem;
+        line-height: 0.5;
+    }
+
+    .sort-arrow {
+        font-size: 0.5rem;
+        margin-left: 0.2rem;
+        display: inline-block;
+        color: #cccccc;
+        font-weight: bold;
+        vertical-align: middle;
+        line-height: 1;
+        padding: 2px 2px;
+    }
+
+        .sort-arrow.active {
+            color: #1e5631;
+            opacity: 1;
+            font-weight: bold;
+        }
+
+    .sort-arrow-up {
+        margin-bottom: -3px;
+    }
+
+    .sort-arrow-down {
+        margin-top: -3px;
+    }
+
+    .move-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        font-weight: bold;
+        transition: background-color 0.2s, transform 0.1s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        position: relative;
+    }
+
+        .move-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .move-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+    .move-dropdown-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Add these styles to your CSS */
+    .move-dropdown-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Updated popup styles */
+    .move-dropdown {
+        display: none;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        min-width: 350px; /* Increased width */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        border-radius: 8px;
+        z-index: 1050;
+        padding: 0; /* Remove padding to control it better */
+        border: 1px solid #ddd;
+        overflow: hidden; /* For clean rounded corners */
+    }
+
+        .move-dropdown.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        /* Styled header */
+        .move-dropdown .dropdown-header {
+            font-size: 1.1rem;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            background-color: #1e5631; /* Match your green theme */
+            padding: 12px 15px;
+            margin: 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Popup content area */
+        .move-dropdown .dropdown-content {
+            padding: 15px;
+        }
+
+        .move-dropdown .form-select {
+            font-size: 0.95rem;
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            margin-right: 15px;
+            border: 1px solid #cccccc;
+        }
+
+    .move-dropdown-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    /* Green confirmation button */
+    .move-confirm-btn {
+        background-color: #1e5631; /* Match your green theme */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .move-confirm-btn:hover {
+            background-color: #163f24;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+    .move-cancel-btn {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-left: 15px;
+    }
+
+        .move-cancel-btn:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+    .move-dropdown-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1040;
+        backdrop-filter: blur(2px); /* Add subtle blur effect */
+    }
+
+        .move-dropdown-backdrop.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
 </style>
