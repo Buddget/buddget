@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Buddget.BLL.DTOs;
+using Buddget.BLL.Enums;
 using Buddget.BLL.Services.Implementations;
 using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
@@ -173,6 +174,74 @@ namespace Buddget.Tests.Services.Implementation
             // Assert
             Assert.Equal("You are not authorized to delete this transaction.", result);
             _mockTransactionRepository.Verify(repo => repo.GetByIdAsync(transactionId), Times.Once);
+        }
+        [Fact]
+        public async Task GetSortedTransactionsBySpaceIdAsync_SortsByNameAscending()
+        {
+            // Arrange
+            int spaceId = 1;
+            var transactions = new List<TransactionEntity>
+            {
+                new TransactionEntity { Id = 1, Name = "B Transaction", Amount = 100, Currency = "USD", Date = DateTime.UtcNow, Type = "Income", Category = new CategoryEntity { Name = "Category 1" }, User = new UserEntity { FirstName = "John", LastName = "Doe" } },
+                new TransactionEntity { Id = 2, Name = "A Transaction", Amount = 200, Currency = "EUR", Date = DateTime.UtcNow, Type = "Expense", Category = new CategoryEntity { Name = "Category 2" }, User = new UserEntity { FirstName = "Jane", LastName = "Doe" } }
+            };
+
+            _mockTransactionRepository.Setup(repo => repo.GetTransactionsBySpaceIdAsync(spaceId)).ReturnsAsync(transactions);
+
+            // Act
+            var result = await _transactionService.GetSortedTransactionsBySpaceIdAsync(spaceId, TransactionSortColumnEnum.Name, true);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal("A Transaction", result.First().Name);
+            Assert.Equal("B Transaction", result.Last().Name);
+        }
+
+        [Fact]
+        public async Task GetSortedTransactionsBySpaceIdAsync_SortsByAmountDescending()
+        {
+            // Arrange
+            int spaceId = 1;
+            var transactions = new List<TransactionEntity>
+            {
+                new TransactionEntity { Id = 1, Name = "Transaction 1", Amount = 100, Currency = "USD", Date = DateTime.UtcNow, Type = "Income", Category = new CategoryEntity { Name = "Category 1" }, User = new UserEntity { FirstName = "John", LastName = "Doe" } },
+                new TransactionEntity { Id = 2, Name = "Transaction 2", Amount = 200, Currency = "EUR", Date = DateTime.UtcNow, Type = "Expense", Category = new CategoryEntity { Name = "Category 2" }, User = new UserEntity { FirstName = "Jane", LastName = "Doe" } }
+            };
+
+            _mockTransactionRepository.Setup(repo => repo.GetTransactionsBySpaceIdAsync(spaceId)).ReturnsAsync(transactions);
+
+            // Act
+            var result = await _transactionService.GetSortedTransactionsBySpaceIdAsync(spaceId, TransactionSortColumnEnum.Amount, false);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(200, result.First().Amount);
+            Assert.Equal(100, result.Last().Amount);
+        }
+
+        [Fact]
+        public async Task GetSortedTransactionsBySpaceIdAsync_SortsByDateAscending()
+        {
+            // Arrange
+            int spaceId = 1;
+            var transactions = new List<TransactionEntity>
+            {
+                new TransactionEntity { Id = 1, Name = "Transaction 1", Amount = 100, Currency = "USD", Date = DateTime.UtcNow.AddDays(-1), Type = "Income", Category = new CategoryEntity { Name = "Category 1" }, User = new UserEntity { FirstName = "John", LastName = "Doe" } },
+                new TransactionEntity { Id = 2, Name = "Transaction 2", Amount = 200, Currency = "EUR", Date = DateTime.UtcNow, Type = "Expense", Category = new CategoryEntity { Name = "Category 2" }, User = new UserEntity { FirstName = "Jane", LastName = "Doe" } }
+            };
+
+            _mockTransactionRepository.Setup(repo => repo.GetTransactionsBySpaceIdAsync(spaceId)).ReturnsAsync(transactions);
+
+            // Act
+            var result = await _transactionService.GetSortedTransactionsBySpaceIdAsync(spaceId, TransactionSortColumnEnum.Date, true);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(transactions.OrderBy(t => t.Date).First().Date, result.First().Date);
+            Assert.Equal(transactions.OrderBy(t => t.Date).Last().Date, result.Last().Date);
         }
     }
 }

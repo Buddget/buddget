@@ -1,4 +1,5 @@
 using AutoMapper;
+using Buddget.BLL.Enums;
 using Buddget.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,7 @@ namespace BuddgetWeb.Areas.User.Controllers
         }
 
         [Route("User/Transactions/TransactionHistory/[action]/{id?}")]
-        public async Task<IActionResult> Index(int id)
+        public async Task<IActionResult> Index(int id, TransactionSortColumnEnum sortColumn = TransactionSortColumnEnum.Id, bool ascending = true)
         {
             var financialSpace = await _financialSpaceService.GetFinancialSpaceByIdAsync(id);
 
@@ -31,7 +32,7 @@ namespace BuddgetWeb.Areas.User.Controllers
                 return View("NotFound");
             }
 
-            var transactions = await _transactionService.GetTransactionsBySpaceIdAsync(id);
+            var transactions = await _transactionService.GetSortedTransactionsBySpaceIdAsync(id, sortColumn, ascending);
 
             _logger.LogInformation($"Tried retrieving transactions for space with ID {id}. Retrieved {transactions.Count()} unique transactions");
 
@@ -41,6 +42,8 @@ namespace BuddgetWeb.Areas.User.Controllers
                 FinancialSpaceId = id,
                 FinancialSpaceName = financialSpace.Name,
                 FinancialSpaceOwner = financialSpace.OwnerName,
+                SortColumn = sortColumn,
+                Ascending = ascending,
             });
         }
 

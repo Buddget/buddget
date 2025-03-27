@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using Buddget.BLL.DTOs;
+using Buddget.BLL.Enums;
 using Buddget.BLL.Services.Interfaces;
-using Buddget.DAL.Repositories.Implementations;
+using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -84,6 +85,31 @@ namespace Buddget.BLL.Services.Implementations
                 _logger.LogError(ex, "An error occurred while attempting to delete transaction with ID {TransactionId}.", transactionId);
                 return "An error occurred while deleting the transaction.";
             }
+        }
+
+        public async Task<IEnumerable<TransactionDto>> GetSortedTransactionsBySpaceIdAsync(int spaceId, TransactionSortColumnEnum sortColumn = TransactionSortColumnEnum.Id, bool ascending = true)
+        {
+            var transactions = await GetTransactionsBySpaceIdAsync(spaceId);
+            var sortedTransactions = SortTransactions(transactions, sortColumn, ascending);
+            _logger.LogInformation($"Retrieved {sortedTransactions.Count()} transactions for space with ID {spaceId}. Sorted by {sortColumn} in {(ascending ? "ascending" : "descending")} order.");
+            return _mapper.Map<IEnumerable<TransactionDto>>(sortedTransactions);
+        }
+
+        private IEnumerable<TransactionDto> SortTransactions(IEnumerable<TransactionDto> transactions, TransactionSortColumnEnum sortColumn, bool ascending = true)
+        {
+            return sortColumn switch
+            {
+                TransactionSortColumnEnum.Id => ascending ? transactions.OrderBy(t => t.Id) : transactions.OrderByDescending(t => t.Id),
+                TransactionSortColumnEnum.Name => ascending ? transactions.OrderBy(t => t.Name) : transactions.OrderByDescending(t => t.Name),
+                TransactionSortColumnEnum.Amount => ascending ? transactions.OrderBy(t => t.Amount) : transactions.OrderByDescending(t => t.Amount),
+                TransactionSortColumnEnum.Currency => ascending ? transactions.OrderBy(t => t.Currency) : transactions.OrderByDescending(t => t.Currency),
+                TransactionSortColumnEnum.Date => ascending ? transactions.OrderBy(t => t.Date) : transactions.OrderByDescending(t => t.Date),
+                TransactionSortColumnEnum.Type => ascending ? transactions.OrderBy(t => t.Type) : transactions.OrderByDescending(t => t.Type),
+                TransactionSortColumnEnum.CategoryName => ascending ? transactions.OrderBy(t => t.CategoryName) : transactions.OrderByDescending(t => t.CategoryName),
+                TransactionSortColumnEnum.AuthorName => ascending ? transactions.OrderBy(t => t.AuthorName) : transactions.OrderByDescending(t => t.AuthorName),
+                TransactionSortColumnEnum.Description => ascending ? transactions.OrderBy(t => t.Description) : transactions.OrderByDescending(t => t.Description),
+                _ => transactions
+            };
         }
     }
 }
