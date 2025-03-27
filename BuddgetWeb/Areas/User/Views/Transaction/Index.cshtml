@@ -26,74 +26,82 @@
                             <th class="resizable col-id">
                                 <a href="@Url.Action("Index", new { financialSpaceId = @Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Id, ascending = @Model.SortColumn == TransactionSortColumnEnum.Id ? !@Model.Ascending : true })">
                                     Id
-                                    @if (Model.SortColumn == TransactionSortColumnEnum.Id)
-                                    {
-                                        <span class="sort-arrow">@(Model.Ascending ? "▲" : "▼")</span>
-                                    }
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Id && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Id && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
                                 </a>
                             </th>
                             <th class="resizable col-name">
                                 <a href="@Url.Action("Index", new { financialSpaceId = @Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Name, ascending = @Model.SortColumn == TransactionSortColumnEnum.Name ? !@Model.Ascending : true })">
                                     Name
-                                    @if (Model.SortColumn == TransactionSortColumnEnum.Name)
-                                    {
-                                        <span class="sort-arrow">@(Model.Ascending ? "▲" : "▼")</span>
-                                    }
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Name && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Name && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
                                 </a>
                             </th>
                             <th class="resizable col-amount text-center">
                                 <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Amount, ascending = Model.SortColumn == TransactionSortColumnEnum.Amount ? !Model.Ascending : true })">
                                     Amount
-                                    @if (Model.SortColumn == TransactionSortColumnEnum.Amount)
-                                    {
-                                        <span class="sort-arrow">@(Model.Ascending ? "▲" : "▼")</span>
-                                    }
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Amount && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Amount && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
                                 </a>
                             </th>
                             <th class="resizable col-currency text-center">
                                 <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Currency, ascending = Model.SortColumn == TransactionSortColumnEnum.Currency ? !Model.Ascending : true })">
                                     Currency
-                                    @if (Model.SortColumn == TransactionSortColumnEnum.Currency)
-                                    {
-                                        <span class="sort-arrow">@(Model.Ascending ? "▲" : "▼")</span>
-                                    }
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Currency && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Currency && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
                                 </a>
                             </th>
                             <th class="resizable col-type text-center">
                                 <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Type, ascending = Model.SortColumn == TransactionSortColumnEnum.Type ? !Model.Ascending : true })">
                                     Type
-                                    @if (Model.SortColumn == TransactionSortColumnEnum.Type)
-                                    {
-                                        <span class="sort-arrow">@(Model.Ascending ? "▲" : "▼")</span>
-                                    }
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Type && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Type && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
                                 </a>
                             </th>
                             <th class="resizable col-category text-center">
                                 <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.CategoryName, ascending = Model.SortColumn == TransactionSortColumnEnum.CategoryName ? !Model.Ascending : true })">
                                     Category
-                                    @if (Model.SortColumn == TransactionSortColumnEnum.CategoryName)
-                                    {
-                                        <span class="sort-arrow">@(Model.Ascending ? "▲" : "▼")</span>
-                                    }
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.CategoryName && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.CategoryName && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
                                 </a>
                             </th>
-                            <th class="resizable col-description">Description</th>
+                            <th class="resizable col-description">
+                                <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Description, ascending = Model.SortColumn == TransactionSortColumnEnum.Description ? !Model.Ascending : true })">
+                                    Description
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Description && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Description && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
+                                </a>
+                            </th>
                             <th class="resizable col-date">
                                 <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.Date, ascending = Model.SortColumn == TransactionSortColumnEnum.Date ? !Model.Ascending : true })">
                                     Date
-                                    @if (Model.SortColumn == TransactionSortColumnEnum.Date)
-                                    {
-                                        <span class="sort-arrow">@(Model.Ascending ? "▲" : "▼")</span>
-                                    }
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.Date && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.Date && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
                                 </a>
                             </th>
                             <th class="resizable col-author">
                                 <a href="@Url.Action("Index", new { financialSpaceId = Model.FinancialSpaceId, sortColumn = TransactionSortColumnEnum.AuthorName, ascending = Model.SortColumn == TransactionSortColumnEnum.AuthorName ? !Model.Ascending : true })">
                                     Added By
-                                    @if (Model.SortColumn == TransactionSortColumnEnum.AuthorName)
-                                    {
-                                        <span class="sort-arrow">@(Model.Ascending ? "▲" : "▼")</span>
-                                    }
+                                    <span class="sort-arrows">
+                                        <span class="sort-arrow sort-arrow-up @(Model.SortColumn == TransactionSortColumnEnum.AuthorName && Model.Ascending ? "active" : "")">▲</span>
+                                        <span class="sort-arrow sort-arrow-down @(Model.SortColumn == TransactionSortColumnEnum.AuthorName && !Model.Ascending ? "active" : "")">▼</span>
+                                    </span>
                                 </a>
                             </th>
                             <th class="resizable col-actions text-center">Actions</th>
@@ -115,8 +123,7 @@
                                 <td class="actions-cell">
                                     <div class="action-buttons">
                                         <button class="edit-btn" data-id="@transaction.Id">✎</button>
-                                        <form method="post" action="@Url.Action("Delete", "Transaction", new { area = "User" })"
-                                              onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                                        <form method="post" action="@Url.Action("Delete", "Transaction", new { area = "User" })">
                                             <input type="hidden" name="transactionId" value="@transaction.Id" />
                                             <input type="hidden" name="financialSpaceId" value="@Model.FinancialSpaceId" />
                                             @Html.AntiForgeryToken()
@@ -154,11 +161,14 @@
 
             setupResizableTable();
 
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
+            const deleteForms = document.querySelectorAll('.actions-cell form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    console.log('Delete transaction ID:', this.getAttribute('data-id'));
+
+                    if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+                        this.submit();
+                    }
                 });
             });
 
@@ -390,7 +400,7 @@
                 align-items: center;
                 justify-content: inherit;
             }
-            
+
             .table th.text-center a {
                 justify-content: center;
             }
@@ -625,11 +635,35 @@
             }
 
     /* Sort arrows styling */
-    .sort-arrow {
-        font-size: 0.7rem;
+    .sort-arrows {
+        display: inline-flex;
+        flex-direction: column;
         margin-left: 0.3rem;
+        line-height: 0.5;
+    }
+
+    .sort-arrow {
+        font-size: 0.5rem;
+        margin-left: 0.2rem;
         display: inline-block;
-        color: #1e5631;
+        color: #cccccc;
         font-weight: bold;
+        vertical-align: middle;
+        line-height: 1;
+        padding: 2px 2px;
+    }
+
+        .sort-arrow.active {
+            color: #1e5631;
+            opacity: 1;
+            font-weight: bold;
+        }
+
+    .sort-arrow-up {
+        margin-bottom: -3px;
+    }
+
+    .sort-arrow-down {
+        margin-top: -3px;
     }
 </style>
