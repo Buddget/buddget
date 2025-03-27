@@ -100,6 +100,7 @@ namespace Buddget.BLL.Services.Implementations
             var transaction = await _transactionRepository.GetByIdAsync(transactionId);
             if (transaction == null)
             {
+                _logger.LogWarning("Transaction not found");
                 return "Transaction not found.";
             }
 
@@ -108,22 +109,26 @@ namespace Buddget.BLL.Services.Implementations
 
             if (currentSpace == null || targetSpace == null)
             {
+                _logger.LogWarning("One or both of the financial spaces were not found.");
                 return "One or both of the financial spaces were not found.";
             }
 
             if (currentSpace.OwnerId != userId && (currentSpace.Members == null || !currentSpace.Members.Any(m => m.UserId == userId)))
             {
+                _logger.LogWarning("User is not authorized to move the transaction from this space.");
                 return "You are not authorized to move the transaction from this space.";
             }
 
             if (targetSpace.OwnerId != userId && (targetSpace.Members == null || !targetSpace.Members.Any(m => m.UserId == userId)))
             {
+                _logger.LogWarning("User is not authorized to move the transaction to the target space.");
                 return "You are not authorized to move the transaction to the target space.";
             }
 
             transaction.FinancialSpaceId = targetSpaceId;
             await _transactionRepository.UpdateAsync(transaction);
 
+            _logger.LogInformation("Transaction moved successfully.");
             return "Transaction moved successfully.";
         }
 
