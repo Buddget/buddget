@@ -243,5 +243,129 @@ namespace Buddget.Tests.Services.Implementation
             Assert.Equal(transactions.OrderBy(t => t.Date).First().Date, result.First().Date);
             Assert.Equal(transactions.OrderBy(t => t.Date).Last().Date, result.Last().Date);
         }
+        [Fact]
+        public async Task MoveTransactionAsync_ReturnsError_WhenTransactionNotFound()
+        {
+            // Arrange
+            int transactionId = 1;
+            int targetSpaceId = 2;
+            int userId = 1;
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync((TransactionEntity)null);
+
+            // Act
+            var result = await _transactionService.MoveTransactionAsync(transactionId, targetSpaceId, userId);
+
+            // Assert
+            Assert.Equal("Transaction not found.", result);
+        }
+
+        [Fact]
+        public async Task MoveTransactionAsync_ReturnsError_WhenCurrentSpaceNotFound()
+        {
+            // Arrange
+            int transactionId = 1;
+            int targetSpaceId = 2;
+            int userId = 1;
+            var transaction = new TransactionEntity { Id = transactionId, FinancialSpaceId = 1 };
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync(transaction);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(transaction.FinancialSpaceId)).ReturnsAsync((FinancialSpaceEntity)null);
+
+            // Act
+            var result = await _transactionService.MoveTransactionAsync(transactionId, targetSpaceId, userId);
+
+            // Assert
+            Assert.Equal("One or both of the financial spaces were not found.", result);
+        }
+
+        [Fact]
+        public async Task MoveTransactionAsync_ReturnsError_WhenTargetSpaceNotFound()
+        {
+            // Arrange
+            int transactionId = 1;
+            int targetSpaceId = 2;
+            int userId = 1;
+            var transaction = new TransactionEntity { Id = transactionId, FinancialSpaceId = 1 };
+            var currentSpace = new FinancialSpaceEntity { Id = 1, OwnerId = userId };
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync(transaction);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(transaction.FinancialSpaceId)).ReturnsAsync(currentSpace);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(targetSpaceId)).ReturnsAsync((FinancialSpaceEntity)null);
+
+            // Act
+            var result = await _transactionService.MoveTransactionAsync(transactionId, targetSpaceId, userId);
+
+            // Assert
+            Assert.Equal("One or both of the financial spaces were not found.", result);
+        }
+
+        [Fact]
+        public async Task MoveTransactionAsync_ReturnsError_WhenUserNotAuthorizedToMoveFromCurrentSpace()
+        {
+            // Arrange
+            int transactionId = 1;
+            int targetSpaceId = 2;
+            int userId = 1;
+            var transaction = new TransactionEntity { Id = transactionId, FinancialSpaceId = 1 };
+            var currentSpace = new FinancialSpaceEntity { Id = 1, OwnerId = 2, Members = new List<FinancialSpaceMemberEntity>() };
+            var targetSpace = new FinancialSpaceEntity { Id = targetSpaceId, OwnerId = userId, Members = new List<FinancialSpaceMemberEntity>() };
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync(transaction);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(transaction.FinancialSpaceId)).ReturnsAsync(currentSpace);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(targetSpaceId)).ReturnsAsync(targetSpace);
+
+            // Act
+            var result = await _transactionService.MoveTransactionAsync(transactionId, targetSpaceId, userId);
+
+            // Assert
+            Assert.Equal("You are not authorized to move the transaction from this space.", result);
+        }
+
+        [Fact]
+        public async Task MoveTransactionAsync_ReturnsError_WhenUserNotAuthorizedToMoveToTargetSpace()
+        {
+            // Arrange
+            int transactionId = 1;
+            int targetSpaceId = 2;
+            int userId = 1;
+            var transaction = new TransactionEntity { Id = transactionId, FinancialSpaceId = 1 };
+            var currentSpace = new FinancialSpaceEntity { Id = 1, OwnerId = userId, Members = new List<FinancialSpaceMemberEntity>() };
+            var targetSpace = new FinancialSpaceEntity { Id = targetSpaceId, OwnerId = 2, Members = new List<FinancialSpaceMemberEntity>() };
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync(transaction);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(transaction.FinancialSpaceId)).ReturnsAsync(currentSpace);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(targetSpaceId)).ReturnsAsync(targetSpace);
+
+            // Act
+            var result = await _transactionService.MoveTransactionAsync(transactionId, targetSpaceId, userId);
+
+            // Assert
+            Assert.Equal("You are not authorized to move the transaction to the target space.", result);
+        }
+
+        [Fact]
+        public async Task MoveTransactionAsync_SuccessfullyMovesTransaction()
+        {
+            // Arrange
+            int transactionId = 1;
+            int targetSpaceId = 2;
+            int userId = 1;
+            var transaction = new TransactionEntity { Id = transactionId, FinancialSpaceId = 1 };
+            var currentSpace = new FinancialSpaceEntity { Id = 1, OwnerId = userId, Members = new List<FinancialSpaceMemberEntity>() };
+            var targetSpace = new FinancialSpaceEntity { Id = targetSpaceId, OwnerId = userId, Members = new List<FinancialSpaceMemberEntity>() };
+
+            _mockTransactionRepository.Setup(repo => repo.GetByIdAsync(transactionId)).ReturnsAsync(transaction);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(transaction.FinancialSpaceId)).ReturnsAsync(currentSpace);
+            _mockFinancialSpaceRepository.Setup(repo => repo.GetFinancialSpaceAsync(targetSpaceId)).ReturnsAsync(targetSpace);
+            _mockTransactionRepository.Setup(repo => repo.UpdateAsync(transaction)).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _transactionService.MoveTransactionAsync(transactionId, targetSpaceId, userId);
+
+            // Assert
+            Assert.Equal("Transaction moved successfully.", result);
+            _mockTransactionRepository.Verify(repo => repo.UpdateAsync(transaction), Times.Once);
+        }
     }
 }

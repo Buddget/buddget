@@ -95,6 +95,38 @@ namespace Buddget.BLL.Services.Implementations
             return _mapper.Map<IEnumerable<TransactionDto>>(sortedTransactions);
         }
 
+        public async Task<string> MoveTransactionAsync(int transactionId, int targetSpaceId, int userId)
+        {
+            var transaction = await _transactionRepository.GetByIdAsync(transactionId);
+            if (transaction == null)
+            {
+                return "Transaction not found.";
+            }
+
+            var currentSpace = await _financialSpaceRepository.GetFinancialSpaceAsync(transaction.FinancialSpaceId);
+            var targetSpace = await _financialSpaceRepository.GetFinancialSpaceAsync(targetSpaceId);
+
+            if (currentSpace == null || targetSpace == null)
+            {
+                return "One or both of the financial spaces were not found.";
+            }
+
+            if (currentSpace.OwnerId != userId && (currentSpace.Members == null || !currentSpace.Members.Any(m => m.UserId == userId)))
+            {
+                return "You are not authorized to move the transaction from this space.";
+            }
+
+            if (targetSpace.OwnerId != userId && (targetSpace.Members == null || !targetSpace.Members.Any(m => m.UserId == userId)))
+            {
+                return "You are not authorized to move the transaction to the target space.";
+            }
+
+            transaction.FinancialSpaceId = targetSpaceId;
+            await _transactionRepository.UpdateAsync(transaction);
+
+            return "Transaction moved successfully.";
+        }
+
         private IEnumerable<TransactionDto> SortTransactions(IEnumerable<TransactionDto> transactions, TransactionSortColumnEnum sortColumn, bool ascending = true)
         {
             return sortColumn switch
