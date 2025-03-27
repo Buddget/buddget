@@ -100,4 +100,9 @@ app.MapAreaControllerRoute(
     pattern: "User/Transactions/History",
     defaults: new { controller = "Transaction", action = "Index" });
 
+app.MapControllerRoute(
+    name: "create-financial-space",
+    pattern: "User/FinancialSpace/Create",
+    defaults: new { area = "User", controller = "FinancialSpace", action = "Create" });
+
 app.Run();
