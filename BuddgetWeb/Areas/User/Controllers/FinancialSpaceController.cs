@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
+using BuddgetWeb.Areas.User.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuddgetWeb.Areas.User.Controllers
@@ -22,7 +24,7 @@ namespace BuddgetWeb.Areas.User.Controllers
 
         public async Task<IActionResult> MySpaces()
         {
-            int userId = 1;
+            int userId = 1; // PLUG
             var spaces = await _financialSpaceService.GetFinancialSpacesUserIsMemberOrOwnerOf(userId);
 
             var viewModel = new BuddgetWeb.Areas.User.Models.MySpacesViewModel
@@ -74,6 +76,55 @@ namespace BuddgetWeb.Areas.User.Controllers
             }
 
             return RedirectToAction(nameof(Index), new { id = spaceId });
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateFinancialSpaceViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                _logger.LogError("Model binding errors: {Errors}", string.Join(", ", errors));
+
+                _logger.LogInformation("Name: {Name}", model.Name);
+                _logger.LogInformation("Description: {Description}", model.Description);
+                _logger.LogInformation("Image is null: {IsNull}", model.Image == null);
+            }
+
+            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+
+            var financialSpaceDto = new FinancialSpaceDto
+            {
+                Name = model.Name,
+                Description = model.Description,
+                OwnerId = userId,
+            };
+
+            if (model.Image != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await model.Image.CopyToAsync(memoryStream);
+                    financialSpaceDto.ImageData = memoryStream.ToArray();
+                    financialSpaceDto.ImageName = model.Image.FileName;
+                }
+            }
+
+            var createdSpaceMessage = await _financialSpaceService.CreateFinancialSpaceAsync(financialSpaceDto);
+
+            TempData["Message"] = createdSpaceMessage;
+
+            return RedirectToAction(nameof(MySpaces));
         }
     }
 }

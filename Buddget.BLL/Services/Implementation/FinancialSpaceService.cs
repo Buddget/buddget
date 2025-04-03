@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
+using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -55,7 +56,7 @@ namespace Buddget.BLL.Services.Implementations
 
             // Map to DTO
             var spaceDto = _mapper.Map<FinancialSpaceDto>(spaceEntity);
-            spaceDto.OwnerName = spaceEntity.Owner.FirstName + " " + spaceEntity.Owner.LastName;
+            spaceDto.OwnerName = spaceEntity.Owner?.FirstName + " " + spaceEntity.Owner?.LastName;
             spaceDto.Goals = financialGoals.ToList();
             spaceDto.Members = members.ToList();
             spaceDto.BannedMembers = bannedMembers.ToList();
@@ -106,6 +107,49 @@ namespace Buddget.BLL.Services.Implementations
                 _logger.LogError(ex, "An error occurred while attempting to delete financial space with ID {SpaceId}.", id);
                 return "An error occurred while deleting the financial space.";
             }
+        }
+
+        public async Task<string> CreateFinancialSpaceAsync(FinancialSpaceDto financialSpaceDto)
+        {
+            if (financialSpaceDto == null)
+            {
+                _logger.LogWarning("Financial space data is required.");
+                return "Financial space data is required.";
+            }
+
+            if (financialSpaceDto.Name == null)
+            {
+                _logger.LogWarning("Name is required.");
+                return "Name is required.";
+            }
+
+            if (financialSpaceDto.Description != null && financialSpaceDto.Description.Length > 1000)
+            {
+                _logger.LogWarning("Description cannot exceed 1000 characters.");
+                return "Description cannot exceed 1000 characters.";
+            }
+
+            if ((financialSpaceDto.ImageData == null) != (financialSpaceDto.ImageData == null))
+            {
+                _logger.LogWarning("When providing ImageData, ImageName is required and vica verca.");
+                return "When providing ImageData, ImageName is required and vica verca.";
+            }
+
+            var financialSpace = await GetFinancialSpaceByIdAsync(financialSpaceDto.Id);
+            if (financialSpace != null)
+            {
+                _logger.LogWarning($"Financial space with ID={financialSpace.Id} already exists.");
+                return $"Financial space with ID={financialSpace.Id} already exists.";
+            }
+
+            var spaceEntity = _mapper.Map<FinancialSpaceEntity>(financialSpaceDto);
+
+            spaceEntity.CreatedAt = DateTime.UtcNow;
+
+            await _financialSpaceRepository.AddAsync(spaceEntity);
+
+            _logger.LogInformation("Financial space with ID {SpaceId} created successfully.", spaceEntity.Id);
+            return "Financial space created successfully.";
         }
     }
 }

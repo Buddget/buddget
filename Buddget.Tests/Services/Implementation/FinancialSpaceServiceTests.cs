@@ -245,7 +245,139 @@ namespace Buddget.Tests.Services.Implementation
             // Assert
             Assert.Equal("You are not the owner of this financial space.", result); // Ensuring the correct ownership error message is returned
         }
+        [Fact]
+        public async Task CreateFinancialSpaceAsync_ReturnsSuccessMessage_WhenSpaceIsCreatedSuccessfully()
+        {
+            // Arrange
+            var financialSpaceDto = new FinancialSpaceDto
+            {
+                Id = 1,
+                Name = "Test Space",
+                Description = "Test Description",
+                OwnerId = 1,
+                ImageName = "test.jpg",
+                ImageData = new byte[] { 1, 2, 3 }
+            };
 
+            var financialSpaceEntity = new FinancialSpaceEntity
+            {
+                Id = 1,
+                Name = "Test Space",
+                Description = "Test Description",
+                OwnerId = 1,
+                ImageName = "test.jpg",
+                ImageData = new byte[] { 1, 2, 3 },
+                CreatedAt = DateTime.UtcNow
+            };
 
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetFinancialSpaceAsync(financialSpaceDto.Id))
+                .ReturnsAsync((FinancialSpaceEntity)null);
+
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+
+            // Assert
+            Assert.Equal("Financial space created successfully.", result);
+            _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateFinancialSpaceAsync_ReturnsErrorMessage_WhenFinancialSpaceDataIsNull()
+        {
+            // Arrange
+            FinancialSpaceDto financialSpaceDto = null;
+
+            // Act
+            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+
+            // Assert
+            Assert.Equal("Financial space data is required.", result);
+            _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateFinancialSpaceAsync_ReturnsErrorMessage_WhenNameIsNull()
+        {
+            // Arrange
+            var financialSpaceDto = new FinancialSpaceDto
+            {
+                Id = 1,
+                Description = "Test Description",
+                OwnerId = 1,
+                ImageName = "test.jpg",
+                ImageData = new byte[] { 1, 2, 3 }
+            };
+
+            // Act
+            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+
+            // Assert
+            Assert.Equal("Name is required.", result);
+            _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateFinancialSpaceAsync_ReturnsErrorMessage_WhenSpaceWithSameIdAlreadyExists()
+        {
+            // Arrange
+            var financialSpaceDto = new FinancialSpaceDto
+            {
+                Id = 1,
+                Name = "Test Space",
+                Description = "Test Description",
+                OwnerId = 1,
+                ImageName = "test.jpg",
+                ImageData = new byte[] { 1, 2, 3 }
+            };
+
+            var existingFinancialSpaceEntity = new FinancialSpaceEntity
+            {
+                Id = 1,
+                Name = "Existing Space",
+                Description = "Existing Description",
+                OwnerId = 1,
+                ImageName = "existing.jpg",
+                ImageData = new byte[] { 4, 5, 6 },
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetFinancialSpaceAsync(financialSpaceDto.Id))
+                .ReturnsAsync(existingFinancialSpaceEntity);
+
+            // Act
+            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+
+            // Assert
+            Assert.Equal($"Financial space with ID={existingFinancialSpaceEntity.Id} already exists.", result);
+            _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateFinancialSpaceAsync_ReturnsErrorMessage_WhenDescriptionExceedsMaxLength()
+        {
+            // Arrange
+            var financialSpaceDto = new FinancialSpaceDto
+            {
+                Id = 1,
+                Name = "Test Space",
+                Description = new string('a', 1001), // Description with 1001 characters
+                OwnerId = 1,
+                ImageName = "test.jpg",
+                ImageData = new byte[] { 1, 2, 3 }
+            };
+
+            // Act
+            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+
+            // Assert
+            Assert.Equal("Description cannot exceed 1000 characters.", result);
+            _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Never);
+        }
     }
 }
