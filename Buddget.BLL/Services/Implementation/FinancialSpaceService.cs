@@ -35,24 +35,34 @@ namespace Buddget.BLL.Services.Implementations
 
         public async Task<FinancialSpaceDto> GetFinancialSpaceByIdAsync(int spaceId)
         {
+            _logger.LogInformation("Getting financial space with ID {SpaceId}", spaceId);
+            
             // Get financial space
             var spaceEntity = await _financialSpaceRepository.GetFinancialSpaceAsync(spaceId);
             if (spaceEntity == null)
             {
+                _logger.LogWarning("Financial space with ID {SpaceId} not found", spaceId);
                 return null;
             }
 
+            _logger.LogInformation("Found financial space - Name: {Name}, OwnerId: {OwnerId}", 
+                spaceEntity.Name, spaceEntity.OwnerId);
+
             // Get members of the space
             var members = await _financialSpaceMemberService.GetMembersBySpaceIdAsync(spaceId);
+            _logger.LogInformation("Retrieved {Count} members for space {SpaceId}", members.Count(), spaceId);
 
             // Get banned members of the space
             var bannedMembers = await _financialSpaceMemberService.GetBannedMembersBySpaceIdAsync(spaceId);
+            _logger.LogInformation("Retrieved {Count} banned members for space {SpaceId}", bannedMembers.Count(), spaceId);
 
             // Get financial goals of the space
             var financialGoals = await _financialGoalSpaceService.GetFinancialGoalsBySpaceIdAsync(spaceId);
+            _logger.LogInformation("Retrieved {Count} goals for space {SpaceId}", financialGoals.Count(), spaceId);
 
             // Get transactions of the space
             var transactions = await _transactionService.GetTransactionsBySpaceIdAsync(spaceId);
+            _logger.LogInformation("Retrieved {Count} transactions for space {SpaceId}", transactions.Count(), spaceId);
 
             // Map to DTO
             var spaceDto = _mapper.Map<FinancialSpaceDto>(spaceEntity);
@@ -61,6 +71,9 @@ namespace Buddget.BLL.Services.Implementations
             spaceDto.Members = members.ToList();
             spaceDto.BannedMembers = bannedMembers.ToList();
             spaceDto.RecentTransactions = transactions.ToList();
+
+            _logger.LogInformation("Mapped financial space to DTO - Members count: {MembersCount}, Banned members count: {BannedCount}", 
+                spaceDto.Members.Count, spaceDto.BannedMembers.Count);
 
             return spaceDto;
         }

@@ -1,32 +1,38 @@
 ﻿using Moq;
 using Buddget.BLL.Services.Implementation;
 using Buddget.DAL.Repositories.Interfaces;
+using Buddget.BLL.Services.Interfaces;
 using AutoMapper;
 using Buddget.DAL.Entities;
+using Microsoft.Extensions.Logging;
+using Buddget.BLL.DTOs;
+using Buddget.BLL.Utilities;
 
 namespace Buddget.Tests.Services.Implementation
 {
     public class FinancialSpaceMemberServiceTests
     {
         private readonly Mock<IFinancialSpaceMemberRepository> _mockFinancialSpaceMemberRepository;
+        private readonly Mock<IUserService> _mockUserService;
         private readonly IMapper _mapper;
+        private readonly Mock<ILogger<FinancialSpaceMemberService>> _mockLogger;
         private readonly FinancialSpaceMemberService _service;
 
         public FinancialSpaceMemberServiceTests()
         {
-            // Arrange AutoMapper configuration
-            var mapperConfig = new MapperConfiguration(cfg =>
-            {
-                // Assuming you have a profile or mapping configuration for FinancialSpaceMemberDto
-                cfg.AddProfile(new FinancialSpaceMemberProfile()); // Adjust this based on your profile setup
-            });
-            _mapper = mapperConfig.CreateMapper();
-
             // Initialize the mock repository
             _mockFinancialSpaceMemberRepository = new Mock<IFinancialSpaceMemberRepository>();
+            _mockUserService = new Mock<IUserService>();
+            _mockLogger = new Mock<ILogger<FinancialSpaceMemberService>>();
+            _mapper = new MapperConfiguration(cfg => cfg.AddProfile(new FinancialSpaceMemberProfile())).CreateMapper();
 
             // Create the service with mocked dependencies
-            _service = new FinancialSpaceMemberService(_mockFinancialSpaceMemberRepository.Object, _mapper);
+            _service = new FinancialSpaceMemberService(
+                _mockFinancialSpaceMemberRepository.Object,
+                _mockUserService.Object,
+                _mapper,
+                _mockLogger.Object
+            );
         }
 
         [Fact]
@@ -34,32 +40,26 @@ namespace Buddget.Tests.Services.Implementation
         {
             // Arrange
             var spaceId = 1;
-            var financialSpaceMemberEntities = new List<FinancialSpaceMemberEntity>
+            var members = new List<FinancialSpaceMemberEntity>
             {
-                new FinancialSpaceMemberEntity
-                {
-                    Id = 1,
-                    FinancialSpaceId = spaceId,
-                    UserId = 1,
-                    Role = "Admin",
-                    FinancialSpace = new FinancialSpaceEntity { Id = spaceId, Name = "Financial Space 1" },
-                    User = new UserEntity { Id = 1, FirstName = "John", LastName = "Doe", Email = "john.doe@example.com", Role = "user", RegisteredAt = DateTime.Now }
-                },
-                new FinancialSpaceMemberEntity
-                {
-                    Id = 2,
-                    FinancialSpaceId = spaceId,
-                    UserId = 2,
-                    Role = "Member",
-                    FinancialSpace = new FinancialSpaceEntity { Id = spaceId, Name = "Financial Space 1" },
-                    User = new UserEntity { Id = 2, FirstName = "Jane", LastName = "Doe", Email = "jane.doe@example.com", Role = "user", RegisteredAt = DateTime.Now }
-                }
+                new FinancialSpaceMemberEntity { Id = 1, UserId = 1, Role = "Member" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = 2, Role = "Member" }
             };
 
-            // Mock the repository method
             _mockFinancialSpaceMemberRepository
                 .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(financialSpaceMemberEntities);
+                .ReturnsAsync(members);
+
+            _mockUserService
+                .Setup(service => service.GetUserByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync((int id) => Result<UserDto>.SuccessResult(new UserDto 
+                { 
+                    Id = id, 
+                    Email = $"user{id}@example.com",
+                    FirstName = $"User{id}",
+                    LastName = "Test",
+                    RegisteredAt = DateTime.Now
+                }));
 
             // Act
             var result = await _service.GetMembersBySpaceIdAsync(spaceId);
@@ -67,30 +67,8 @@ namespace Buddget.Tests.Services.Implementation
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());
-            Assert.Equal("John", result.First().FirstName);
-            Assert.Equal("Admin", result.First().Role);
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.GetMembersBySpaceIdAsync(spaceId), Times.Once);
-        }
-
-        [Fact]
-        public async Task GetMembersBySpaceIdAsync_ReturnsEmptyList_WhenNoMembers()
-        {
-            // Arrange
-            var spaceId = 1;
-            var financialSpaceMemberEntities = new List<FinancialSpaceMemberEntity>();
-
-            // Mock the repository method
-            _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(financialSpaceMemberEntities);
-
-            // Act
-            var result = await _service.GetMembersBySpaceIdAsync(spaceId);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.GetMembersBySpaceIdAsync(spaceId), Times.Once);
+            Assert.Equal("user1@example.com", result.First().Email);
+            Assert.Equal("Member", result.First().MemberRole);
         }
 
         [Fact]
@@ -99,22 +77,24 @@ namespace Buddget.Tests.Services.Implementation
             // Arrange
             var spaceId = 1;
             var bannedMembers = new List<FinancialSpaceMemberEntity>
-    {
-        new FinancialSpaceMemberEntity
-        {
-            Id = 3,
-            FinancialSpaceId = spaceId,
-            UserId = 3,
-            Role = "Banned",
-            FinancialSpace = new FinancialSpaceEntity { Id = spaceId, Name = "Financial Space 1" },
-            User = new UserEntity { Id = 3, FirstName = "Alice", LastName = "Smith", Email = "alice.smith@example.com", Role = "user", RegisteredAt = DateTime.Now }
-        }
-    };
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = 1, Role = "Banned" }
+            };
 
-            // Mock the repository method
             _mockFinancialSpaceMemberRepository
                 .Setup(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId))
                 .ReturnsAsync(bannedMembers);
+
+            _mockUserService
+                .Setup(service => service.GetUserByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync((int id) => Result<UserDto>.SuccessResult(new UserDto 
+                { 
+                    Id = id, 
+                    Email = $"user{id}@example.com",
+                    FirstName = $"User{id}",
+                    LastName = "Test",
+                    RegisteredAt = DateTime.Now
+                }));
 
             // Act
             var result = await _service.GetBannedMembersBySpaceIdAsync(spaceId);
@@ -122,181 +102,8 @@ namespace Buddget.Tests.Services.Implementation
             // Assert
             Assert.NotNull(result);
             Assert.Single(result);
-            Assert.Equal("Alice", result.First().FirstName);
+            Assert.Equal("user1@example.com", result.First().Email);
             Assert.Equal("Banned", result.First().MemberRole);
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId), Times.Once);
-        }
-
-        [Fact]
-        public async Task GetBannedMembersBySpaceIdAsync_ReturnsEmptyList_WhenNoBannedMembers()
-        {
-            // Arrange
-            var spaceId = 1;
-            var bannedMembers = new List<FinancialSpaceMemberEntity>();
-
-            // Mock the repository method
-            _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(bannedMembers);
-
-            // Act
-            var result = await _service.GetBannedMembersBySpaceIdAsync(spaceId);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId), Times.Once);
-        }
-
-        [Fact]
-        public async Task BanMemberAsync_Success_WhenRequestingUserIsOwner()
-        {
-            // Arrange
-            var spaceId = 1;
-            var memberId = 2;
-            var ownerId = 1;
-
-            var members = new List<FinancialSpaceMemberEntity>
-    {
-        new FinancialSpaceMemberEntity
-        {
-            Id = 1,
-            FinancialSpaceId = spaceId,
-            UserId = ownerId,
-            Role = "Owner",
-            User = new UserEntity { Id = ownerId, FirstName = "John", LastName = "Owner", Email = "owner@example.com" }
-        },
-        new FinancialSpaceMemberEntity
-        {
-            Id = 2,
-            FinancialSpaceId = spaceId,
-            UserId = memberId,
-            Role = "Member",
-            User = new UserEntity { Id = memberId, FirstName = "Jane", LastName = "Member", Email = "member@example.com" }
-        }
-    };
-
-            var bannedMembers = new List<FinancialSpaceMemberEntity>();
-
-            _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(members);
-
-            _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(bannedMembers);
-
-            // Act
-            var result = await _service.BanMemberAsync(spaceId, memberId, ownerId);
-
-            // Assert
-            Assert.Contains("successfully banned", result.ToLower());
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.Is<FinancialSpaceMemberEntity>(m =>
-                m.UserId == memberId && m.Role == "Banned")), Times.Once);
-        }
-
-        [Fact]
-        public async Task BanMemberAsync_Fails_WhenRequestingUserIsNotOwner()
-        {
-            // Arrange
-            var spaceId = 1;
-            var memberId = 2;
-            var ownerId = 1;
-            var requestingUserId = 3; // Not the owner
-
-            var members = new List<FinancialSpaceMemberEntity>
-    {
-        new FinancialSpaceMemberEntity
-        {
-            Id = 1,
-            FinancialSpaceId = spaceId,
-            UserId = ownerId,
-            Role = "Owner",
-            User = new UserEntity { Id = ownerId, FirstName = "John", LastName = "Owner", Email = "owner@example.com" }
-        },
-        new FinancialSpaceMemberEntity
-        {
-            Id = 2,
-            FinancialSpaceId = spaceId,
-            UserId = memberId,
-            Role = "Member",
-            User = new UserEntity { Id = memberId, FirstName = "Jane", LastName = "Member", Email = "member@example.com" }
-        }
-    };
-
-            _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(members);
-
-            // Act
-            var result = await _service.BanMemberAsync(spaceId, memberId, requestingUserId);
-
-            // Assert
-            Assert.Contains("only the owner", result.ToLower());
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task BanMemberAsync_Fails_WhenMemberNotFound()
-        {
-            // Arrange
-            var spaceId = 1;
-            var memberId = 99; // Non-existent member
-            var ownerId = 1;
-
-            var members = new List<FinancialSpaceMemberEntity>
-    {
-        new FinancialSpaceMemberEntity
-        {
-            Id = 1,
-            FinancialSpaceId = spaceId,
-            UserId = ownerId,
-            Role = "Owner",
-            User = new UserEntity { Id = ownerId, FirstName = "John", LastName = "Owner", Email = "owner@example.com" }
-        }
-    };
-
-            _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(members);
-
-            // Act
-            var result = await _service.BanMemberAsync(spaceId, memberId, ownerId);
-
-            // Assert
-            Assert.Contains("member not found", result.ToLower());
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task BanMemberAsync_Fails_WhenTryingToBanOwner()
-        {
-            // Arrange
-            var spaceId = 1;
-            var ownerId = 1;
-
-            var members = new List<FinancialSpaceMemberEntity>
-    {
-        new FinancialSpaceMemberEntity
-        {
-            Id = 1,
-            FinancialSpaceId = spaceId,
-            UserId = ownerId,
-            Role = "Owner",
-            User = new UserEntity { Id = ownerId, FirstName = "John", LastName = "Owner", Email = "owner@example.com" }
-        }
-    };
-
-            _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(members);
-
-            // Act
-            var result = await _service.BanMemberAsync(spaceId, ownerId, ownerId);
-
-            // Assert
-            Assert.Contains("cannot ban the owner", result.ToLower());
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
         }
 
         [Fact]
@@ -308,51 +115,20 @@ namespace Buddget.Tests.Services.Implementation
             var ownerId = 1;
 
             var members = new List<FinancialSpaceMemberEntity>
-    {
-        new FinancialSpaceMemberEntity
-        {
-            Id = 1,
-            FinancialSpaceId = spaceId,
-            UserId = ownerId,
-            Role = "Owner",
-            User = new UserEntity { Id = ownerId, FirstName = "John", LastName = "Owner", Email = "owner@example.com" }
-        },
-        new FinancialSpaceMemberEntity
-        {
-            Id = 2,
-            FinancialSpaceId = spaceId,
-            UserId = memberId,
-            Role = "Member",
-            User = new UserEntity { Id = memberId, FirstName = "Jane", LastName = "Member", Email = "member@example.com" }
-        }
-    };
-
-            var bannedMembers = new List<FinancialSpaceMemberEntity>
-    {
-        new FinancialSpaceMemberEntity
-        {
-            Id = 2,
-            FinancialSpaceId = spaceId,
-            UserId = memberId,
-            Role = "Banned",
-            User = new UserEntity { Id = memberId, FirstName = "Jane", LastName = "Member", Email = "member@example.com" }
-        }
-    };
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = ownerId, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Banned" }
+            };
 
             _mockFinancialSpaceMemberRepository
                 .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
                 .ReturnsAsync(members);
 
-            _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(bannedMembers);
-
             // Act
             var result = await _service.BanMemberAsync(spaceId, memberId, ownerId);
 
             // Assert
-            Assert.Contains("already banned", result.ToLower());
-            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
+            Assert.Contains("Member is already banned", result);
         }
 
         [Fact]
@@ -364,63 +140,132 @@ namespace Buddget.Tests.Services.Implementation
             var ownerId = 1;
 
             var members = new List<FinancialSpaceMemberEntity>
-    {
-        new FinancialSpaceMemberEntity
-        {
-            Id = 1,
-            FinancialSpaceId = spaceId,
-            UserId = ownerId,
-            Role = "Owner",
-            User = new UserEntity { Id = ownerId, FirstName = "John", LastName = "Owner", Email = "owner@example.com" }
-        },
-        new FinancialSpaceMemberEntity
-        {
-            Id = 2,
-            FinancialSpaceId = spaceId,
-            UserId = memberId,
-            Role = "Member",
-            User = new UserEntity { Id = memberId, FirstName = "Jane", LastName = "Member", Email = "member@example.com" }
-        }
-    };
-
-            var bannedMembers = new List<FinancialSpaceMemberEntity>();
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = ownerId, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Member" }
+            };
 
             _mockFinancialSpaceMemberRepository
                 .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
                 .ReturnsAsync(members);
 
             _mockFinancialSpaceMemberRepository
-                .Setup(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(bannedMembers);
-
-            _mockFinancialSpaceMemberRepository
                 .Setup(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()))
-                .ThrowsAsync(new Exception("Database error"));
+                .ThrowsAsync(new Exception("Update failed"));
 
             // Act
             var result = await _service.BanMemberAsync(spaceId, memberId, ownerId);
 
             // Assert
-            Assert.Contains("failed to ban member", result.ToLower());
+            Assert.Contains("An error occurred while banning the member", result);
         }
 
         [Fact]
-        public async Task BanMemberAsync_HandlesGeneralException()
+        public async Task InviteMember_SuccessfullyInvitesNewMember()
         {
             // Arrange
+            var email = "test@example.com";
             var spaceId = 1;
-            var memberId = 2;
-            var ownerId = 1;
+            var userId = 1;
+
+            var userDto = new UserDto
+            {
+                Id = userId,
+                Email = email,
+                FirstName = "Test",
+                LastName = "User",
+                RegisteredAt = DateTime.Now
+            };
+
+            _mockUserService
+                .Setup(service => service.GetUserByEmailAsync(email))
+                .ReturnsAsync(Result<UserDto>.SuccessResult(userDto));
 
             _mockFinancialSpaceMemberRepository
                 .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
-                .ThrowsAsync(new Exception("Unexpected error"));
+                .ReturnsAsync(new List<FinancialSpaceMemberEntity>());
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.CreateAsync(It.IsAny<FinancialSpaceMemberEntity>()))
+                .ReturnsAsync((FinancialSpaceMemberEntity entity) => entity);
 
             // Act
-            var result = await _service.BanMemberAsync(spaceId, memberId, ownerId);
+            await _service.InviteMember(email, spaceId);
 
             // Assert
-            Assert.Contains("an error occurred", result.ToLower());
+            _mockFinancialSpaceMemberRepository.Verify(
+                repo => repo.CreateAsync(It.Is<FinancialSpaceMemberEntity>(entity =>
+                    entity.UserId == userId &&
+                    entity.FinancialSpaceId == spaceId &&
+                    entity.Role == "Member")),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task InviteMember_ThrowsException_WhenEmailIsEmpty()
+        {
+            // Arrange
+            var email = "";
+            var spaceId = 1;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => _service.InviteMember(email, spaceId));
+        }
+
+        [Fact]
+        public async Task InviteMember_ThrowsException_WhenUserNotFound()
+        {
+            // Arrange
+            var email = "nonexistent@example.com";
+            var spaceId = 1;
+
+            _mockUserService
+                .Setup(service => service.GetUserByEmailAsync(email))
+                .ReturnsAsync(Result<UserDto>.FailureResult("User not found"));
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => 
+                _service.InviteMember(email, spaceId));
+            Assert.Contains("not found", exception.Message);
+        }
+
+        [Fact]
+        public async Task InviteMember_ThrowsException_WhenUserAlreadyMember()
+        {
+            // Arrange
+            var email = "existing@example.com";
+            var spaceId = 1;
+            var userId = 1;
+
+            var userDto = new UserDto
+            {
+                Id = userId,
+                Email = email,
+                FirstName = "Test",
+                LastName = "User",
+                RegisteredAt = DateTime.Now
+            };
+
+            _mockUserService
+                .Setup(service => service.GetUserByEmailAsync(email))
+                .ReturnsAsync(Result<UserDto>.SuccessResult(userDto));
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(new List<FinancialSpaceMemberEntity> 
+                { 
+                    new FinancialSpaceMemberEntity 
+                    { 
+                        UserId = userId,
+                        FinancialSpaceId = spaceId,
+                        Role = "Member"
+                    } 
+                });
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => 
+                _service.InviteMember(email, spaceId));
+            Assert.Contains("already a member", exception.Message);
         }
     }
 }

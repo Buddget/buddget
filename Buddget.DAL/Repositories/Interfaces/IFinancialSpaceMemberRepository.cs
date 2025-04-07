@@ -8,5 +8,7 @@ namespace Buddget.DAL.Repositories.Interfaces
         Task<IEnumerable<FinancialSpaceMemberEntity>> GetBannedMembersBySpaceIdAsync(int spaceId);
         Task<FinancialSpaceMemberEntity> GetMembershipAsync(int userId, int spaceId);
         Task<bool> IsMemberOfSpaceAsync(int userId, int spaceId);
+        Task<FinancialSpaceMemberEntity> CreateAsync(FinancialSpaceMemberEntity entity);
+        new Task UpdateAsync(FinancialSpaceMemberEntity entity);
     }
 }
