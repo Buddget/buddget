@@ -7,5 +7,6 @@ namespace Buddget.BLL.Services.Interfaces
         Task<IEnumerable<CategoryDto>> GetCustomCategoriesByUserIdAsync(int userId);
         Task<bool> AddCustomCategoryAsync(int userId, string categoryName);
         Task<bool> DeleteCustomCategoryAsync(int userId, int categoryId);
+        Task<IEnumerable<CategoryDto>> GetDefaultCategoriesAsync();
     }
 }

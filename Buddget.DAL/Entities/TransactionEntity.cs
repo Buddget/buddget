@@ -31,16 +31,14 @@ namespace Buddget.DAL.Entities
         [RegularExpression("^(income|expense)$", ErrorMessage = "Type must be either 'income' or 'expense'.")]
         public string Type { get; set; }
 
-        [Required(ErrorMessage = "Transaction category id is required.")]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "Transaction date is required.")]
         public DateTime Date { get; set; }
-
         public FinancialSpaceEntity FinancialSpace { get; set; }
         public UserEntity User { get; set; }
-        public CategoryEntity Category { get; set; }
+        public CategoryEntity? Category { get; set; }
     }
 }

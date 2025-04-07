@@ -53,5 +53,11 @@ namespace Buddget.BLL.Services.Implementations
             await _categoryRepository.DeleteAsync(category);
             return true;
         }
+
+        public async Task<IEnumerable<CategoryDto>> GetDefaultCategoriesAsync()
+        {
+            var categories = await _categoryRepository.GetDefaultCategoriesAsync();
+            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
+        }
     }
 }

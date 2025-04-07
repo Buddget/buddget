@@ -9,5 +9,6 @@ namespace Buddget.BLL.Services.Interfaces
         Task<string> DeleteTransactionAsync(int transactionId, int userId);
         Task<IEnumerable<TransactionDto>> GetSortedTransactionsBySpaceIdAsync(int spaceId, TransactionSortColumnEnum sortColumn = TransactionSortColumnEnum.Id, bool ascending = true);
         Task<string> MoveTransactionAsync(int transactionId, int targetSpaceId, int userId);
+        Task<string> CreateTransactionAsync(TransactionDto transactionDto); // Новий метод для створення транзакції
     }
 }
