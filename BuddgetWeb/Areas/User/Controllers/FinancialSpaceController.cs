@@ -81,6 +81,29 @@ namespace BuddgetWeb.Areas.User.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> DeleteMember(int spaceId, int memberId)
+        {
+            var requestingUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+
+            try
+            {
+                _logger.LogInformation("Deleting member {MemberId} from space {SpaceId}", memberId, spaceId);
+                var resultMessage = await _financialSpaceMemberService.DeleteMemberAsync(spaceId, memberId, requestingUserId);
+                _logger.LogInformation("Member {MemberId} successfully deleted from space {SpaceId}", memberId, spaceId);
+
+                TempData["Message"] = resultMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting member {MemberId} from space {SpaceId}", memberId, spaceId);
+                TempData["Message"] = "An unexpected error occurred while trying to delete the member.";
+            }
+
+            return RedirectToAction(nameof(Index), new { id = spaceId });
+        }
+
+
+        [HttpPost]
         public async Task<IActionResult> InviteMember(string email, int spaceId)
         {
             try

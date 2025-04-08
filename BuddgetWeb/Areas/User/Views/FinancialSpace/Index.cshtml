@@ -89,6 +89,11 @@
                                                     <input type="hidden" name="memberId" value="@member.Id" />
                                                     <button type="submit" class="btn btn-sm btn-danger ban-btn">Ban</button>
                                                 </form>
+                                                <form action="@Url.Action("DeleteMember", "FinancialSpace", new { area = "User" })" method="post" style="margin: 0">
+                                                    <input type="hidden" name="spaceId" value="@Model.Id" />
+                                                    <input type="hidden" name="memberId" value="@member.Id" />
+                                                <button type="submit" class="btn btn-sm btn-danger delete-btn">Delete</button>
+                                                </form>
                                             }
                                     </div>
                                 }
@@ -352,6 +357,18 @@
         transition: background-color 0.2s ease, transform 0.2s ease;
     }
 
+    .delete-btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        background-color: #ffffff;
+        color: #000000;
+        border: 1px solid #dc3545;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+
+    }
+
     .ban-btn:hover {
         background-color: #c82333;
         transform: scale(1.05);
@@ -359,6 +376,9 @@
 
     .member-item, .member-owner-item {
         padding: 0.75rem;
+        display: flex;
+        gap: 4px;
+
     }
 
     .member-item p, .member-owner-item p {
