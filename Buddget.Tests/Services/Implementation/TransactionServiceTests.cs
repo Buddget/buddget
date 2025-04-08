@@ -17,6 +17,8 @@ namespace Buddget.Tests.Services.Implementation
         private readonly TransactionService _transactionService;
         private readonly Mock<ILogger<TransactionService>> _mockLogger;
 
+        private readonly Mock<ICategoryRepository> _mockCategoryRepository;
+        private readonly Mock<IUserRepository> _mockUserRepository;
         public TransactionServiceTests()
         {
             var mapperConfig = new MapperConfiguration(cfg =>
@@ -28,12 +30,17 @@ namespace Buddget.Tests.Services.Implementation
             _mockTransactionRepository = new Mock<ITransactionRepository>();
             _mockFinancialSpaceRepository = new Mock<IFinancialSpaceRepository>();
             _mockLogger = new Mock<ILogger<TransactionService>>();
+            _mockCategoryRepository = new Mock<ICategoryRepository>();
+            _mockUserRepository = new Mock<IUserRepository>();
 
             _transactionService = new TransactionService(
                 _mockTransactionRepository.Object,
+                _mockCategoryRepository.Object,
+                _mockUserRepository.Object,
                 _mockFinancialSpaceRepository.Object,
                 _mapper,
-                _mockLogger.Object);
+                _mockLogger.Object
+                );
         }
 
         [Fact]

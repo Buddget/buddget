@@ -1,5 +1,6 @@
 using AutoMapper;
 using Buddget.BLL.Enums;
+using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +12,16 @@ namespace BuddgetWeb.Areas.User.Controllers
         private readonly ITransactionService _transactionService;
         private readonly IFinancialSpaceService _financialSpaceService;
         private readonly IMapper _mapper;
+                private readonly ICategoryService _categoryService; 
+
         private readonly ILogger<TransactionController> _logger;
 
-        public TransactionController(ITransactionService transactionService, IFinancialSpaceService financialSpaceService, IMapper mapper, ILogger<TransactionController> logger)
+        public TransactionController(ITransactionService transactionService,ICategoryService categoryService, IFinancialSpaceService financialSpaceService, IMapper mapper, ILogger<TransactionController> logger)
         {
             _transactionService = transactionService;
             _financialSpaceService = financialSpaceService;
             _mapper = mapper;
+            _categoryService = categoryService;
             _logger = logger;
         }
 
@@ -38,6 +42,14 @@ namespace BuddgetWeb.Areas.User.Controllers
 
             _logger.LogInformation($"Tried retrieving transactions for space with ID {id}. Retrieved {transactions.Count()} unique transactions");
 
+            var userCategories = await _categoryService.GetCustomCategoriesByUserIdAsync(userId);
+            
+            // Отримуємо дефолтні категорії
+            var defaultCategories = await _categoryService.GetDefaultCategoriesAsync();
+            
+            // Об'єднуємо їх в один список, видаляємо дублікати за Id
+            var allCategories = userCategories.Concat(defaultCategories).DistinctBy(c => c.Id).ToList();
+
             return View(new TransactionsViewModel
             {
                 Transactions = transactions,
@@ -47,6 +59,7 @@ namespace BuddgetWeb.Areas.User.Controllers
                 SortColumn = sortColumn,
                 Ascending = ascending,
                 UserSpaces = userSpaces,
+                UserCategories = allCategories,
             });
         }
 
@@ -78,6 +91,33 @@ namespace BuddgetWeb.Areas.User.Controllers
             TempData["Message"] = resultMessage;
 
             return RedirectToAction(nameof(Index), new { id = targetSpaceId });
+        }
+
+        [HttpPost]
+        [Route("User/Transactions/Create")]
+        public async Task<IActionResult> Create(string Name, decimal Amount, string Type, int? CategoryId, string Description, int financialSpaceId)
+        {
+            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+
+            _logger.LogInformation($"User {userId} creating new transaction in space {financialSpaceId}");
+
+            var transaction = new TransactionDto
+            {
+                Name = Name,
+                Amount = Amount,
+                Type = Type,
+                CategoryId = CategoryId,
+                Description = Description,
+                FinancialSpaceId = financialSpaceId,
+                AuthorId = userId,
+                Date = DateTime.UtcNow
+            };
+
+            var resultMessage = await _transactionService.CreateTransactionAsync(transaction);
+
+            TempData["Message"] = resultMessage;
+
+            return RedirectToAction(nameof(Index), new { id = financialSpaceId });
         }
     }
 }

@@ -22,10 +22,11 @@ namespace Buddget.DAL.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task<CategoryEntity> GetDefaultCategories(int id)
-        {
-            return await _context.Categories
-                .FirstOrDefaultAsync(c => c.UserId == id && c.IsDefault);
-        }
+        public async Task<IEnumerable<CategoryEntity>> GetDefaultCategoriesAsync()
+{
+    return await _context.Categories
+        .Where(c => c.IsDefault == true)
+        .ToListAsync();
+}
     }
 }

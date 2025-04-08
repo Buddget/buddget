@@ -13,16 +13,97 @@ namespace Buddget.BLL.Services.Implementations
         private readonly ITransactionRepository _transactionRepository;
         private readonly IFinancialSpaceRepository _financialSpaceRepository;
         private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
+        private readonly ICategoryRepository _categoryRepository;
+
         private readonly ILogger<TransactionService> _logger;
 
-        public TransactionService(ITransactionRepository transactionRepository, IFinancialSpaceRepository financialSpaceRepository, IMapper mapper, ILogger<TransactionService> logger)
+        public TransactionService(ITransactionRepository transactionRepository,              ICategoryRepository categoryRepository,      IUserRepository userRepository, IFinancialSpaceRepository financialSpaceRepository, IMapper mapper, ILogger<TransactionService> logger)
         {
             _transactionRepository = transactionRepository;
+            _userRepository = userRepository;
+
             _financialSpaceRepository = financialSpaceRepository;
             _mapper = mapper;
             _logger = logger;
-        }
+                        _categoryRepository = categoryRepository;
 
+        }
+        public async Task<string> CreateTransactionAsync(TransactionDto transactionDto)
+        {
+            try
+            {
+                // Перевірка фінансового простору
+                var financialSpace = await _financialSpaceRepository.GetFinancialSpaceAsync(transactionDto.FinancialSpaceId);
+                if (financialSpace == null)
+                {
+                    _logger.LogWarning("Financial space with ID {SpaceId} was not found when creating transaction.", transactionDto.FinancialSpaceId);
+                    return "Financial space not found.";
+                }
+
+                // Перевірка користувача
+                var user = await _userRepository.GetByIdAsync(transactionDto.AuthorId);
+                if (user == null)
+                {
+                    _logger.LogWarning("User with ID {UserId} was not found when creating transaction.", transactionDto.AuthorId);
+                    return "User not found.";
+                }
+
+                // Перевірка категорії, якщо вказана
+                CategoryEntity category = null;
+                if (transactionDto.CategoryId.HasValue)
+                {
+                    category = await _categoryRepository.GetByIdAsync(transactionDto.CategoryId.Value);
+                    if (category == null)
+                    {
+                        _logger.LogWarning("Category with ID {CategoryId} was not found when creating transaction.", transactionDto.CategoryId);
+                        return "Category not found.";
+                    }
+                }
+
+                // Валідація суми
+                if (transactionDto.Amount <= 0)
+                {
+                    _logger.LogWarning("Invalid amount {Amount} when creating transaction.", transactionDto.Amount);
+                    return "Transaction amount must be greater than zero.";
+                }
+
+                // Валідація типу транзакції
+                if (string.IsNullOrEmpty(transactionDto.Type) || 
+                    (transactionDto.Type != "Income" && transactionDto.Type != "Expense"))
+                {
+                    _logger.LogWarning("Invalid transaction type {Type} when creating transaction.", transactionDto.Type);
+                    return "Transaction type must be either 'Income' or 'Expense'.";
+                }
+
+                // Створення об'єкту транзакції
+                var transaction = new TransactionEntity
+                {
+                    Name = transactionDto.Name,
+                    Amount = transactionDto.Amount,
+                    Currency = transactionDto.Currency ?? "UAH",
+                    Date = transactionDto.Date,
+                    Description = transactionDto.Description,
+                    Type = transactionDto.Type,
+                    CategoryId = transactionDto.CategoryId,
+                    UserId = transactionDto.AuthorId,
+                    FinancialSpaceId = transactionDto.FinancialSpaceId,
+                };
+
+                // Збереження транзакції
+                await _transactionRepository.AddAsync(transaction);
+                _logger.LogInformation("Transaction created successfully. ID: {TransactionId}, Space: {SpaceId}, User: {UserId}",
+                    transaction.Id, transaction.FinancialSpaceId, transaction.UserId);
+
+                return "Transaction created successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating transaction in space {SpaceId} by user {UserId}",
+                    transactionDto.FinancialSpaceId, transactionDto.AuthorId);
+                return $"An error occurred while creating the transaction: {ex.Message}";
+            }
+        }
         public async Task<IEnumerable<TransactionDto>> GetTransactionsBySpaceIdAsync(int spaceId)
         {
             var transactions = await _transactionRepository.GetTransactionsBySpaceIdAsync(spaceId);
