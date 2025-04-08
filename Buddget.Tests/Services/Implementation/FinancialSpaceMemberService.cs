@@ -345,6 +345,114 @@ namespace Buddget.Tests.Services.Implementation
             Assert.Contains("Member successfully deleted.", result);
         }
 
+        [Fact]
+        public async Task UnbanMemberAsync_SuccessfullyUnbansMember()
+        {
+            // Arrange
+            var spaceId = 1;
+            var memberId = 2;
+            var ownerId = 1;
 
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = ownerId, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Banned" }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(new List<FinancialSpaceMemberEntity> { new FinancialSpaceMemberEntity { Id = 1, UserId = ownerId, Role = "Owner" } });
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetBannedMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(new List<FinancialSpaceMemberEntity> { new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Banned" } });
+
+
+            // Act
+            var result = await _service.UnbanMemberAsync(spaceId, memberId, ownerId);
+
+            // Assert
+            Assert.Contains("successfully unbanned", result);
+            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.Is<FinancialSpaceMemberEntity>(
+                m => m.UserId == memberId && m.Role == "Member")), Times.Once);
+        }
+
+        [Fact]
+        public async Task UnbanMemberAsync_Fails_WhenMemberNotBanned()
+        {
+            // Arrange
+            var spaceId = 1;
+            var memberId = 2;
+            var ownerId = 1;
+
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = ownerId, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Member" }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(members);
+
+            // Act
+            var result = await _service.UnbanMemberAsync(spaceId, memberId, ownerId);
+
+            // Assert
+            Assert.Contains("Member not found.", result);
+            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UnbanMemberAsync_Fails_WhenRequestingUserIsNotOwner()
+        {
+            // Arrange
+            var spaceId = 1;
+            var memberId = 2;
+            var nonOwnerId = 3;
+
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = 1, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Banned" }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(members);
+
+            // Act
+            var result = await _service.UnbanMemberAsync(spaceId, memberId, nonOwnerId);
+
+            // Assert
+            Assert.Contains("Only the owner can unban members.", result);
+            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UnbanMemberAsync_Fails_WhenMemberNotFound()
+        {
+            // Arrange
+            var spaceId = 1;
+            var memberId = 99; // Non-existent member
+            var ownerId = 1;
+
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = ownerId, Role = "Owner" }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(members);
+            
+
+            // Act
+            var result = await _service.UnbanMemberAsync(spaceId, memberId, ownerId);
+
+            // Assert
+            Assert.Contains("Member not found.", result);
+            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
+        }
     }
 }

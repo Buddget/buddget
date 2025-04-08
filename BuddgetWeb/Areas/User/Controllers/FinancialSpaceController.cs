@@ -81,6 +81,27 @@ namespace BuddgetWeb.Areas.User.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> UnbanMember(int spaceId, int memberId)
+        {
+            var requestingUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+
+            try
+            {
+                _logger.LogInformation("Unbanning member {MemberId} from space {SpaceId}", memberId, spaceId);
+                var resultMessage = await _financialSpaceMemberService.UnbanMemberAsync(spaceId, memberId, requestingUserId);
+                _logger.LogInformation("Member {MemberId} unbanned from space {SpaceId}", memberId, spaceId);
+                TempData["Message"] = resultMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error unbanning member {MemberId} from space {SpaceId}", memberId, spaceId);
+                TempData["Message"] = "An unexpected error occurred while trying to unban the member.";
+            }
+
+            return RedirectToAction(nameof(Index), new { id = spaceId });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> DeleteMember(int spaceId, int memberId)
         {
             var requestingUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");

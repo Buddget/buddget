@@ -154,6 +154,51 @@ namespace Buddget.BLL.Services.Implementation
             }
         }
 
+        public async Task<string> UnbanMemberAsync(int spaceId, int memberId, int requestingUserId)
+        {
+            try
+            {
+                var bannedMembers = await _financialSpaceMemberRepository.GetBannedMembersBySpaceIdAsync(spaceId);
+                var members = await _financialSpaceMemberRepository.GetMembersBySpaceIdAsync(spaceId);
+                var requestingMember = members.FirstOrDefault(m => m.UserId == requestingUserId);
+                var memberToUnban = bannedMembers.FirstOrDefault(m => m.UserId == memberId);
+
+                if (requestingMember == null || requestingMember.Role != "Owner")
+                {
+                    _logger.LogWarning("Only the owner can unban members.");
+                    return "Only the owner can unban members.";
+                }
+
+                if (memberToUnban == null)
+                {
+                    _logger.LogWarning("Member not found.");
+                    return "Member not found.";
+                }
+
+                if (memberToUnban.Role == "Owner")
+                {
+                    _logger.LogWarning("Cannot unban the owner since the owner can't be banned.");
+                    return "Cannot unban the owner since the owner can't be banned.";
+                }
+
+                if (memberToUnban.Role != "Banned")
+                {
+                    _logger.LogWarning("Not banned members cannot be unbanned.");
+                    return "Not banned members cannot be unbanned";
+                }
+
+                memberToUnban.Role = "Member";
+                await _financialSpaceMemberRepository.UpdateAsync(memberToUnban);
+
+                return "Member successfully unbanned.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while unbanning member {MemberId} from space {SpaceId}", memberId, spaceId);
+                return "An error occurred while unbanning the member.";
+            }
+        }
+
         public async Task<string> DeleteMemberAsync(int spaceId, int memberId, int requestingUserId)
         {
             try
