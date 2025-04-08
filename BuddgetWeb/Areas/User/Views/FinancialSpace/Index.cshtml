@@ -51,6 +51,18 @@
                 <h4>Members</h4>
             </div>
             <div class="card-body">
+                <!-- Invite User Form -->
+                @if (Model.OwnerId == int.Parse(User.FindFirst("UserId")?.Value ?? "1"))
+                {
+                    <form action="@Url.Action("InviteMember", "FinancialSpace", new { area = "User" })" method="post" class="mb-3">
+                        <div class="input-group">
+                            <input type="email" name="email" class="form-control" placeholder="Enter user email" required />
+                            <input type="hidden" name="spaceId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-primary">Invite User</button>
+                        </div>
+                    </form>
+                }
+
                 <!-- Tabs -->
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="members">Members</button>
@@ -72,7 +84,7 @@
                                     <div class="member-item">
                                         <p>@member.Email</p>
                                          @if (Model.OwnerId == int.Parse(User.FindFirst("UserId")?.Value ?? "1")) {
-                                                <form asp-controller="FinancialSpace" action="@Url.Action("BanMember", "FinancialSpace", new { area = "User" })" method="post" style="margin: 0">
+                                                <form action="@Url.Action("BanMember", "FinancialSpace", new { area = "User" })" method="post" style="margin: 0">
                                                     <input type="hidden" name="spaceId" value="@Model.Id" />
                                                     <input type="hidden" name="memberId" value="@member.Id" />
                                                     <button type="submit" class="btn btn-sm btn-danger ban-btn">Ban</button>
@@ -80,7 +92,6 @@
                                             }
                                     </div>
                                 }
-
                             }
                         </div>
                     </div>
@@ -97,14 +108,6 @@
                     </div>
                 </div>
             </div>
-
-            <form method="post" asp-controller="FinancialSpace" asp-action="" class="invite-user-form">
-                <div class="form-group">
-                    <input asp-for="" class="form-control" placeholder="Enter user email" />
-                    <span asp-validation-for="" class="text-danger"></span>
-                </div>
-                <button type="submit" class="btn btn-primary custom-btn">Invite User</button>
-            </form>
         </div>
 
         @if (TempData?["Message"]?.ToString() != null)
@@ -364,5 +367,20 @@
 </style>
 
 @section Scripts {
-    <script src="~/js/tabSwitcher.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Tab switching functionality
+            $('.tab-btn, .tab-banned-btn').click(function() {
+                var tabId = $(this).data('tab');
+                
+                // Update active tab button
+                $('.tab-btn, .tab-banned-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                // Show corresponding tab content
+                $('.tab-pane').removeClass('active');
+                $('#' + tabId).addClass('active');
+            });
+        });
+    </script>
 }

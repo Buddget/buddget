@@ -34,6 +34,7 @@ namespace Buddget.DAL.Repositories.Implementations
         public async Task<FinancialSpaceMemberEntity> GetMembershipAsync(int userId, int spaceId)
         {
             return await _context.FinancialSpaceMembers
+                .Include(m => m.User)
                 .FirstOrDefaultAsync(m => m.UserId == userId && m.FinancialSpaceId == spaceId);
         }
 
@@ -41,6 +42,21 @@ namespace Buddget.DAL.Repositories.Implementations
         {
             return await _context.FinancialSpaceMembers
                 .AnyAsync(m => m.UserId == userId && m.FinancialSpaceId == spaceId);
+        }
+
+        public async Task<FinancialSpaceMemberEntity> CreateAsync(FinancialSpaceMemberEntity entity)
+        {
+            // First, ensure we have the User entity loaded
+            var user = await _context.Users.FindAsync(entity.UserId);
+            entity.User = user;
+
+            _context.FinancialSpaceMembers.Add(entity);
+            await _context.SaveChangesAsync();
+            
+            // Reload the entity with the User navigation property
+            return await _context.FinancialSpaceMembers
+                .Include(m => m.User)
+                .FirstOrDefaultAsync(m => m.Id == entity.Id);
         }
     }
 }

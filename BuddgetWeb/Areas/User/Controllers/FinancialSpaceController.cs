@@ -37,9 +37,11 @@ namespace BuddgetWeb.Areas.User.Controllers
 
         public async Task<IActionResult> Index(int id)
         {
+            _logger.LogInformation("Loading financial space with ID {SpaceId}", id);
             var space = await _financialSpaceService.GetFinancialSpaceByIdAsync(id);
             if (space == null)
             {
+                _logger.LogWarning("Financial space with ID {SpaceId} not found", id);
                 return View("NotFound");
             }
 
@@ -78,6 +80,30 @@ namespace BuddgetWeb.Areas.User.Controllers
             return RedirectToAction(nameof(Index), new { id = spaceId });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> InviteMember(string email, int spaceId)
+        {
+            try
+            {
+                _logger.LogInformation("Inviting user with email {Email} to space {SpaceId}", email, spaceId);
+                await _financialSpaceMemberService.InviteMember(email, spaceId);
+                _logger.LogInformation("User with email {Email} successfully invited to space {SpaceId}", email, spaceId);
+                TempData["Message"] = "User successfully invited to the space.";
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Cannot invite user with email {Email} to space {SpaceId}", email, spaceId);
+                TempData["Message"] = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inviting user with email {Email} to space {SpaceId}", email, spaceId);
+                TempData["Message"] = "An error occurred while inviting the user.";
+            }
+
+            return RedirectToAction(nameof(Index), new { id = spaceId });
+        }
+
         [HttpGet]
         public IActionResult Create()
         {
@@ -98,33 +124,47 @@ namespace BuddgetWeb.Areas.User.Controllers
 
                 _logger.LogInformation("Name: {Name}", model.Name);
                 _logger.LogInformation("Description: {Description}", model.Description);
-                _logger.LogInformation("Image is null: {IsNull}", model.Image == null);
+                return View(model);
             }
 
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
-
-            var financialSpaceDto = new FinancialSpaceDto
+            try
             {
-                Name = model.Name,
-                Description = model.Description,
-                OwnerId = userId,
-            };
-
-            if (model.Image != null)
-            {
-                using (var memoryStream = new MemoryStream())
+                var financialSpaceDto = new FinancialSpaceDto
                 {
-                    await model.Image.CopyToAsync(memoryStream);
-                    financialSpaceDto.ImageData = memoryStream.ToArray();
-                    financialSpaceDto.ImageName = model.Image.FileName;
+                    Name = model.Name,
+                    Description = model.Description,
+                    OwnerId = int.Parse(User.FindFirst("UserId")?.Value ?? "1")
+                };
+
+                if (model.Image != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await model.Image.CopyToAsync(memoryStream);
+                        financialSpaceDto.ImageData = memoryStream.ToArray();
+                        financialSpaceDto.ImageName = model.Image.FileName;
+                    }
+                }
+
+                var resultMessage = await _financialSpaceService.CreateFinancialSpaceAsync(financialSpaceDto);
+                TempData["Message"] = resultMessage;
+
+                if (resultMessage.Contains("successfully", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction(nameof(MySpaces));
+                }
+                else
+                {
+                    ModelState.AddModelError("", resultMessage);
+                    return View(model);
                 }
             }
-
-            var createdSpaceMessage = await _financialSpaceService.CreateFinancialSpaceAsync(financialSpaceDto);
-
-            TempData["Message"] = createdSpaceMessage;
-
-            return RedirectToAction(nameof(MySpaces));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating financial space");
+                ModelState.AddModelError("", "An error occurred while creating the financial space.");
+                return View(model);
+            }
         }
     }
 }
