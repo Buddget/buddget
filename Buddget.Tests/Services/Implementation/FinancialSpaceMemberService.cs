@@ -52,9 +52,9 @@ namespace Buddget.Tests.Services.Implementation
 
             _mockUserService
                 .Setup(service => service.GetUserByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync((int id) => Result<UserDto>.SuccessResult(new UserDto 
-                { 
-                    Id = id, 
+                .ReturnsAsync((int id) => Result<UserDto>.SuccessResult(new UserDto
+                {
+                    Id = id,
                     Email = $"user{id}@example.com",
                     FirstName = $"User{id}",
                     LastName = "Test",
@@ -87,9 +87,9 @@ namespace Buddget.Tests.Services.Implementation
 
             _mockUserService
                 .Setup(service => service.GetUserByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync((int id) => Result<UserDto>.SuccessResult(new UserDto 
-                { 
-                    Id = id, 
+                .ReturnsAsync((int id) => Result<UserDto>.SuccessResult(new UserDto
+                {
+                    Id = id,
                     Email = $"user{id}@example.com",
                     FirstName = $"User{id}",
                     LastName = "Test",
@@ -160,6 +160,8 @@ namespace Buddget.Tests.Services.Implementation
             Assert.Contains("An error occurred while banning the member", result);
         }
 
+
+
         [Fact]
         public async Task InviteMember_SuccessfullyInvitesNewMember()
         {
@@ -224,7 +226,7 @@ namespace Buddget.Tests.Services.Implementation
                 .ReturnsAsync(Result<UserDto>.FailureResult("User not found"));
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => 
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 _service.InviteMember(email, spaceId));
             Assert.Contains("not found", exception.Message);
         }
@@ -252,20 +254,97 @@ namespace Buddget.Tests.Services.Implementation
 
             _mockFinancialSpaceMemberRepository
                 .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
-                .ReturnsAsync(new List<FinancialSpaceMemberEntity> 
-                { 
-                    new FinancialSpaceMemberEntity 
-                    { 
+                .ReturnsAsync(new List<FinancialSpaceMemberEntity>
+                {
+                    new FinancialSpaceMemberEntity
+                    {
                         UserId = userId,
                         FinancialSpaceId = spaceId,
                         Role = "Member"
-                    } 
+                    }
                 });
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => 
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 _service.InviteMember(email, spaceId));
             Assert.Contains("already a member", exception.Message);
         }
+        [Fact]
+        public async Task DeleteMemberAsync_ReturnsError_WhenRequestingUserIsNotOwner()
+        {
+            // Arrange
+            var spaceId = 1;
+            var memberId = 2;
+            var nonOwnerId = 3;
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = 1, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Member" }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(members);
+
+            // Act
+            var result = await _service.DeleteMemberAsync(spaceId, memberId, nonOwnerId);
+
+            // Assert
+            Assert.Contains("Only the owner can delete members.", result);
+        }
+
+        [Fact]
+        public async Task DeleteMemberAsync_HandlesDeleteException()
+        {
+            // Arrange
+            var spaceId = 1;
+            var memberId = 2;
+            var ownerId = 1;
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = ownerId, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Member" }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(members);
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.DeleteAsync(It.IsAny<FinancialSpaceMemberEntity>()))
+                .ThrowsAsync(new Exception("Delete failed"));
+
+            // Act
+            var result = await _service.DeleteMemberAsync(spaceId, memberId, ownerId);
+
+            // Assert
+            Assert.Contains("An error occurred while deleting the member.", result);
+        }
+
+        [Fact]
+        public async Task DeleteMemberAsync_DeletesMember_Successfully()
+        {
+            // Arrange
+            var spaceId = 1;
+            var memberId = 2;
+            var ownerId = 1;
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = ownerId, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = memberId, Role = "Member" }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(members);
+
+            // Act
+            var result = await _service.DeleteMemberAsync(spaceId, memberId, ownerId);
+
+            // Assert
+            Assert.Contains("Member successfully deleted.", result);
+        }
+
+
     }
 }

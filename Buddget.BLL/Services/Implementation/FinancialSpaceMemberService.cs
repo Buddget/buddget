@@ -154,6 +154,40 @@ namespace Buddget.BLL.Services.Implementation
             }
         }
 
+        public async Task<string> DeleteMemberAsync(int spaceId, int memberId, int requestingUserId)
+        {
+            try
+            {
+                var members = await _financialSpaceMemberRepository.GetMembersBySpaceIdAsync(spaceId);
+                var requestingMember = members.FirstOrDefault(m => m.UserId == requestingUserId);
+                var memberToDelete = members.FirstOrDefault(m => m.UserId == memberId);
+
+                if (requestingMember == null || requestingMember.Role != "Owner")
+                {
+                    return "Only the owner can delete members.";
+                }
+
+                if (memberToDelete == null)
+                {
+                    return "Member not found.";
+                }
+
+                if (memberToDelete.Role == "Owner")
+                {
+                    return "Cannot delete the owner.";
+                }
+
+                await _financialSpaceMemberRepository.DeleteAsync(memberToDelete);
+
+                return "Member successfully deleted.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting member {MemberId} from space {SpaceId}", memberId, spaceId);
+                return "An error occurred while deleting the member.";
+            }
+        }
+
         public async Task<FinancialSpaceMemberDto> CreateAsync(CreateFinancialSpaceMemberDto createDto)
         {
             try
