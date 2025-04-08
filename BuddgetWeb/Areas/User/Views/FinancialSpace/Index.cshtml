@@ -105,9 +105,17 @@
                         <div class="scrollable-section">
                             @foreach (var member in Model.BannedMembers)
                             {
-                                <div class="member-item">
-                                    <p>@member.Email</p>
-                                </div>
+                                <tr>
+                                    <td>@member.FirstName @member.LastName</td>
+                                    <td>@member.Email</td>
+                                    <td>
+                                        <form action="@Url.Action("UnbanMember", "FinancialSpace", new { area = "User" })" method="post" style="margin: 0">
+                                            <input type="hidden" name="spaceId" value="@Model.Id" />
+                                            <input type="hidden" name="memberId" value="@member.Id" />
+                                            <button type="submit" class="btn btn-danger">Unban</button>
+                                        </form>
+                                    </td>
+                                </tr>
                             }
                         </div>
                     </div>
