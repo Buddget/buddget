@@ -8,6 +8,9 @@ using Buddget.DAL.Repositories.Interfaces;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Microsoft.AspNetCore.Identity;
+using Buddget.DAL.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,13 @@ if (string.IsNullOrEmpty(connectionString))
 // Register the DbContext with PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
+{
+    // Налаштування пароля, підтвердження пошти, політики безпеки і т.д.
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IFinancialSpaceRepository, FinancialSpaceRepository>();
 builder.Services.AddScoped<IFinancialSpaceMemberRepository, FinancialSpaceMemberRepository>();
@@ -70,6 +80,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

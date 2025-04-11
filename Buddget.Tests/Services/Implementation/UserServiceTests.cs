@@ -68,7 +68,7 @@ namespace Buddget.Tests.Services.Implementation
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john.doe@example.com",
-                Role = "user",
+                //Role = "user",
                 RegisteredAt = DateTime.UtcNow
             };
 
@@ -114,7 +114,7 @@ namespace Buddget.Tests.Services.Implementation
                 FirstName = "John",
                 LastName = "Doe",
                 Email = email,
-                Role = "user",
+                //Role = "user",
                 RegisteredAt = DateTime.UtcNow
             };
 

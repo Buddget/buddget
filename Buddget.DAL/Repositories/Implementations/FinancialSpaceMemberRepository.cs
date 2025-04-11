@@ -52,7 +52,7 @@ namespace Buddget.DAL.Repositories.Implementations
 
             _context.FinancialSpaceMembers.Add(entity);
             await _context.SaveChangesAsync();
-            
+
             // Reload the entity with the User navigation property
             return await _context.FinancialSpaceMembers
                 .Include(m => m.User)

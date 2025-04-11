@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.12.35728.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buddget.DAL", "Buddget.DAL\Buddget.DAL.csproj", "{2F1B0CB3-DD02-4414-9090-693DC5377F83}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A} = {CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buddget.BLL", "Buddget.BLL\Buddget.BLL.csproj", "{D95F4D23-4AEA-4A23-A8B0-67B2DC79C80B}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -21,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuddgetWeb", "BuddgetWeb\Bu
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buddget.Tests", "Buddget.Tests\Buddget.Tests.csproj", "{FA85233F-A2D3-48AD-88DE-A0DDE3801C52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buddget.Domain", "Buddget.Domain\Buddget.Domain.csproj", "{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +85,18 @@ Global
 		{FA85233F-A2D3-48AD-88DE-A0DDE3801C52}.Release|x64.Build.0 = Release|Any CPU
 		{FA85233F-A2D3-48AD-88DE-A0DDE3801C52}.Release|x86.ActiveCfg = Release|Any CPU
 		{FA85233F-A2D3-48AD-88DE-A0DDE3801C52}.Release|x86.Build.0 = Release|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Debug|x64.Build.0 = Debug|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Debug|x86.Build.0 = Debug|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Release|x64.ActiveCfg = Release|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Release|x64.Build.0 = Release|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Release|x86.ActiveCfg = Release|Any CPU
+		{CDD13F9F-F9B0-47A4-9E87-3FC053B3F63A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
