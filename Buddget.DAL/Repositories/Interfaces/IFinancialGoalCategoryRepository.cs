@@ -1,4 +1,4 @@
-using Buddget.DAL.Entities;
+using Buddget.Domain.Entities;
 
 namespace Buddget.DAL.Repositories.Interfaces
 {

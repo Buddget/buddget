@@ -4,40 +4,30 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Buddget.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 
 namespace BuddgetWeb.Areas.Identity.Pages.Account.Manage
 {
-    public class IndexModel : PageModel
+    public class DeletePersonalDataModel : PageModel
     {
         private readonly UserManager<UserEntity> _userManager;
         private readonly SignInManager<UserEntity> _signInManager;
+        private readonly ILogger<DeletePersonalDataModel> _logger;
 
-        public IndexModel(
+        public DeletePersonalDataModel(
             UserManager<UserEntity> userManager,
-            SignInManager<UserEntity> signInManager)
+            SignInManager<UserEntity> signInManager,
+            ILogger<DeletePersonalDataModel> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public string Username { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [TempData]
-        public string StatusMessage { get; set; }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -56,19 +46,18 @@ namespace BuddgetWeb.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            //[Phone]
-            //[Display(Name = "Phone number")]
-            //public string PhoneNumber { get; set; }
+            [Required]
+            [DataType(DataType.Password)]
+            public string Password { get; set; }
         }
 
-        private async Task LoadAsync(UserEntity user)
-        {
-            var userName = await _userManager.GetUserNameAsync(user);
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public bool RequirePassword { get; set; }
 
-            Username = userName;
-        }
-
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGet()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -76,7 +65,7 @@ namespace BuddgetWeb.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            await LoadAsync(user);
+            RequirePassword = await _userManager.HasPasswordAsync(user);
             return Page();
         }
 
@@ -88,15 +77,28 @@ namespace BuddgetWeb.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            if (!ModelState.IsValid)
+            RequirePassword = await _userManager.HasPasswordAsync(user);
+            if (RequirePassword)
             {
-                await LoadAsync(user);
-                return Page();
+                if (!await _userManager.CheckPasswordAsync(user, Input.Password))
+                {
+                    ModelState.AddModelError(string.Empty, "Incorrect password.");
+                    return Page();
+                }
             }
 
-            await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
-            return RedirectToPage();
+            var result = await _userManager.DeleteAsync(user);
+            var userId = await _userManager.GetUserIdAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException($"Unexpected error occurred deleting user.");
+            }
+
+            await _signInManager.SignOutAsync();
+
+            _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
+
+            return Redirect("~/");
         }
     }
 }

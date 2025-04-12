@@ -1,6 +1,6 @@
 using Buddget.DAL.DataAccess;
-using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
+using Buddget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Buddget.DAL.Repositories.Implementations

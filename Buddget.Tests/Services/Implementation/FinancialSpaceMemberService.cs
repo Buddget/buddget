@@ -3,7 +3,7 @@ using Buddget.BLL.Services.Implementation;
 using Buddget.DAL.Repositories.Interfaces;
 using Buddget.BLL.Services.Interfaces;
 using AutoMapper;
-using Buddget.DAL.Entities;
+using Buddget.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Utilities;

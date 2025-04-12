@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Buddget.BLL.DTOs;
-using Buddget.DAL.Entities;
+using Buddget.Domain.Entities;
 
 public class FinancialSpaceMemberProfile : Profile
 {

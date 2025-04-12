@@ -14,7 +14,7 @@
             <div class="card-body">
                 <p class="text-muted"><strong>Owner:</strong> @Model.OwnerName</p>
                 <p>@Model.Description</p>
-                @if (Model.OwnerId == int.Parse(User.FindFirst("UserId")?.Value ?? "1"))
+                @if (Model.OwnerId == int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0"))
                 {
                     <form action="@Url.Action("Delete", "FinancialSpace", new { area = "User" })" method="post">
                         <input type="hidden" name="id" value="@Model.Id" />
@@ -52,7 +52,7 @@
             </div>
             <div class="card-body">
                 <!-- Invite User Form -->
-                @if (Model.OwnerId == int.Parse(User.FindFirst("UserId")?.Value ?? "1"))
+                @if (Model.OwnerId == int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0"))
                 {
                     <form action="@Url.Action("InviteMember", "FinancialSpace", new { area = "User" })" method="post" class="mb-3">
                         <div class="input-group">
@@ -83,7 +83,8 @@
                                 else{
                                     <div class="member-item">
                                         <p>@member.Email</p>
-                                         @if (Model.OwnerId == int.Parse(User.FindFirst("UserId")?.Value ?? "1")) {
+                                        @if (Model.OwnerId == int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0"))
+                                        {
                                                 <form action="@Url.Action("BanMember", "FinancialSpace", new { area = "User" })" method="post" style="margin: 0">
                                                     <input type="hidden" name="spaceId" value="@Model.Id" />
                                                     <input type="hidden" name="memberId" value="@member.Id" />

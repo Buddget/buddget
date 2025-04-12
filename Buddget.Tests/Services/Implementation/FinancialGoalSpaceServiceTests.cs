@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
 using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Implementations;
-using Buddget.DAL.Entities;
+using Buddget.Domain.Entities;
 using Buddget.DAL.Repositories.Interfaces;
-using Xunit;
 using Buddget.BLL.Mappers;
 
 namespace Buddget.Tests.Services.Implementation

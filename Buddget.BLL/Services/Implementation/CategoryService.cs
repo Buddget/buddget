@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
-using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
+using Buddget.Domain.Entities;
 
 namespace Buddget.BLL.Services.Implementations
 {

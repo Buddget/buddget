@@ -5,7 +5,7 @@
     }
     else
     {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+        Layout = "/Views/Shared/_Layout.cshtml";
     }
 }
 
@@ -26,4 +26,5 @@
 
 @section Scripts {
     @RenderSection("Scripts", required: false)
+    @RenderSection("Styles", required: false)
 }

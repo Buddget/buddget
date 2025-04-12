@@ -1,0 +1,271 @@
+﻿@page  
+@model BuddgetWeb.Areas.Identity.Pages.Account.Manage.UserCategoriesModel  
+@{  
+   ViewData["Title"] = "User Categories";  
+   ViewData["ActivePage"] = ManageNavPages.UserCategories;  
+}  
+
+<h3>@ViewData["Title"]</h3>  
+
+<form method="post">  
+   <div class="form-group">  
+       <label asp-for="NewCategoryName" class="form-label">New Category</label>  
+       <input asp-for="NewCategoryName" class="form-control" />  
+       <span asp-validation-for="NewCategoryName" class="text-danger"></span>  
+   </div>  
+   <button type="submit" class="btn btn-primary mt-2">Add Category</button>  
+</form>  
+
+<hr />  
+
+<div class="container mt-4 px-0">  
+   <h3 class="mb-4">All User Categories</h3>  
+   <div class="row">  
+       @if (Model.UserCategories.Any())  
+       {  
+           @foreach (var category in Model.UserCategories)  
+           {  
+               <div class="col-auto mb-3">  
+                   <div class="category-pill" data-id="@category.Id" data-name="@category.Name">  
+                       <button type="button" class="delete-category-btn open-delete-modal"  
+                               data-category-id="@category.Id"  
+                               data-category-name="@category.Name">&times;</button>  
+                       <h6 class="category-name">@category.Name</h6>  
+                   </div>  
+               </div>  
+           }  
+       }  
+       else  
+       {  
+           <div class="col-12 text-center">No categories found.</div>  
+       }  
+   </div>  
+</div>  
+
+<!-- Delete Confirmation Modal -->  
+<div class="modal fade custom-position" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">  
+   <div class="modal-dialog">  
+       <div class="modal-content">  
+           <form method="post" asp-page="./DeleteCategory">  
+               <div class="modal-header">  
+                   <h5 class="modal-title" id="deleteCategoryModalLabel">Confirm Deletion</h5>  
+                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>  
+               </div>  
+               <div class="modal-body">  
+                   <p>Are you sure you want to delete "<strong><span id="modalCategoryName"></span></strong>"? This action cannot be undone.</p>  
+                   <input type="hidden" name="CategoryId" id="modalCategoryId" />  
+               </div>  
+               <div class="modal-footer">  
+                   <button type="submit" class="btn btn-danger">Delete</button>  
+                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>  
+               </div>  
+           </form>  
+       </div>  
+   </div>  
+</div>
+
+<!-- Modal: Name Required -->
+<div class="modal fade custom-position" id="nameRequiredModal" tabindex="-1" aria-labelledby="nameRequiredModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nameRequiredModalLabel">Missing Category Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Please enter a category name before adding.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Category Already Exists -->
+<div class="modal fade custom-position" id="categoryExistsModal" tabindex="-1" aria-labelledby="categoryExistsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryExistsModalLabel">Duplicate Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                A category with this name already exists.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {  
+   <style>
+        .modal.custom-position .modal-dialog {
+            top: 30vh;
+            transform: translateY(-50%);
+            position: relative;
+        }
+
+       .category-pill {  
+           position: relative;  
+           border-radius: 12px;  
+           display: flex;  
+           align-items: center;  
+           justify-content: flex-start;  
+           transition: all 0.3s ease;  
+           box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);  
+           cursor: pointer;  
+           text-align: center;  
+           padding: 5px 5px;  
+           margin: 5px;
+           white-space: nowrap;
+       }  
+
+       .category-pill:hover {  
+           transform: translateY(-3px);  
+           box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);  
+       }  
+
+       .category-name {  
+           font-weight: 600;  
+           margin: 0 10px;  
+           font-size: 0.9rem;  
+           word-wrap: break-word;  
+           white-space: pre-wrap;  
+       }  
+
+       .delete-category-btn {  
+           background: #ff4d4d;  
+           color: white;  
+           border: none;  
+           border-radius: 50%;  
+           width: 20px;  
+           height: 20px;  
+           display: flex;  
+           align-items: center;  
+           justify-content: center;  
+           cursor: pointer;  
+           position: relative;  
+           margin-right: 5px;  
+           font-size: 0;  
+       }  
+
+       .delete-category-btn::before,  
+       .delete-category-btn::after {  
+           content: '';  
+           position: absolute;  
+           width: 10px;  
+           height: 2px;  
+           background-color: white;  
+           top: 50%;  
+           left: 50%;  
+       }  
+
+       .delete-category-btn::before {  
+           transform: translate(-50%, -50%) rotate(45deg);  
+       }  
+
+       .delete-category-btn::after {  
+           transform: translate(-50%, -50%) rotate(-45deg);  
+       }  
+   </style>  
+}  
+
+@section Scripts {  
+   <partial name="_ValidationScriptsPartial" />  
+   <script>  
+       document.addEventListener('DOMContentLoaded', function () {  
+           const modal = new bootstrap.Modal(document.getElementById('deleteCategoryModal'));  
+
+           document.querySelectorAll('.open-delete-modal').forEach(button => {  
+               button.addEventListener('click', function () {  
+                   const categoryId = this.getAttribute('data-category-id');  
+                   const categoryName = this.getAttribute('data-category-name');  
+
+                   document.getElementById('modalCategoryId').value = categoryId;  
+                   document.getElementById('modalCategoryName').textContent = categoryName;  
+
+                   modal.show();  
+               });  
+           });
+       });
+   </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        @if (Model.ShowNameRequiredModal)
+        {
+            <text>new bootstrap.Modal(document.getElementById('nameRequiredModal')).show();</text>
+        }
+
+        @if (Model.ShowAlreadyExistsModal)
+        {
+            <text>new bootstrap.Modal(document.getElementById('categoryExistsModal')).show();</text>
+        }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryPills = document.querySelectorAll('.category-pill');
+
+            categoryPills.forEach(pill => {
+                const categoryName = pill.getAttribute('data-name');
+                const colorCode = generateColorFromString(categoryName);
+                pill.style.backgroundColor = colorCode;
+
+                const rgb = hexToRgb(colorCode);
+                const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+
+                pill.style.color = brightness < 128 ? 'white' : 'black';
+
+                const deleteButton = pill.querySelector('.delete-category-btn');
+                deleteButton.style.backgroundColor = adjustBrightness(colorCode, brightness < 128 ? 60 : -40);
+                deleteButton.style.color = brightness < 128 ? 'black' : 'white';
+            });
+
+            function generateColorFromString(str) {
+                let hash = 0;
+
+                const utf8 = new TextEncoder().encode(str);
+
+                for (let i = 0; i < utf8.length; i++) {
+                    hash = ((hash << 5) - hash) + utf8[i];
+                    hash |= 0;
+                }
+
+                hash = Math.abs(hash);
+
+                let color = '#';
+                for (let i = 0; i < 3; i++) {
+                    const value = (hash >> (i * 8)) & 0xff;
+                    color += ('00' + value.toString(16)).substr(-2);
+                }
+
+                return color;
+            }
+
+            function hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+            function adjustBrightness(hex, amount) {
+                let rgb = hexToRgb(hex);
+                if (!rgb) return hex;
+
+                rgb.r = Math.min(255, Math.max(0, rgb.r + amount));
+                rgb.g = Math.min(255, Math.max(0, rgb.g + amount));
+                rgb.b = Math.min(255, Math.max(0, rgb.b + amount));
+
+                return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            }
+        });
+    </script>
+}

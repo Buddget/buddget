@@ -2,8 +2,8 @@
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Enums;
 using Buddget.BLL.Services.Interfaces;
-using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
+using Buddget.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Buddget.BLL.Services.Implementations
@@ -26,9 +26,9 @@ namespace Buddget.BLL.Services.Implementations
             _financialSpaceRepository = financialSpaceRepository;
             _mapper = mapper;
             _logger = logger;
-                        _categoryRepository = categoryRepository;
-
+            _categoryRepository = categoryRepository;
         }
+
         public async Task<string> CreateTransactionAsync(TransactionDto transactionDto)
         {
             try

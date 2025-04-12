@@ -1,30 +1,43 @@
 ﻿using AutoMapper;
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
+using Buddget.Domain.Entities;
 using BuddgetWeb.Areas.User.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuddgetWeb.Areas.User.Controllers
 {
     [Area("User")]
+    [Authorize(Roles = "user")]
     public class FinancialSpaceController : Controller
     {
+        private readonly UserManager<UserEntity> _userManager;
         private readonly IFinancialSpaceService _financialSpaceService;
         private readonly IFinancialSpaceMemberService _financialSpaceMemberService;
         private readonly IMapper _mapper;
         private readonly ILogger<FinancialSpaceController> _logger;
 
-        public FinancialSpaceController(IFinancialSpaceService financialSpaceService, IFinancialSpaceMemberService financialSpaceMemberService, IMapper mapper, ILogger<FinancialSpaceController> logger)
+        public FinancialSpaceController(IFinancialSpaceService financialSpaceService, IFinancialSpaceMemberService financialSpaceMemberService, IMapper mapper, ILogger<FinancialSpaceController> logger, UserManager<UserEntity> userManager)
         {
             _financialSpaceService = financialSpaceService;
             _financialSpaceMemberService = financialSpaceMemberService;
             _mapper = mapper;
             _logger = logger;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> MySpaces()
         {
-            int userId = 1; // PLUG
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int userId = user.Id;
             var spaces = await _financialSpaceService.GetFinancialSpacesUserIsMemberOrOwnerOf(userId);
 
             var viewModel = new BuddgetWeb.Areas.User.Models.MySpacesViewModel
@@ -51,7 +64,15 @@ namespace BuddgetWeb.Areas.User.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int userId = user.Id;
+
             var resultMessage = await _financialSpaceService.DeleteFinancialSpaceAsync(userId, id);
 
             TempData["Message"] = resultMessage;
@@ -62,7 +83,14 @@ namespace BuddgetWeb.Areas.User.Controllers
         [HttpPost]
         public async Task<IActionResult> BanMember(int spaceId, int memberId)
         {
-            var requestingUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int requestingUserId = user.Id;
 
             try
             {
@@ -83,7 +111,14 @@ namespace BuddgetWeb.Areas.User.Controllers
         [HttpPost]
         public async Task<IActionResult> UnbanMember(int spaceId, int memberId)
         {
-            var requestingUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int requestingUserId = user.Id;
 
             try
             {
@@ -104,7 +139,14 @@ namespace BuddgetWeb.Areas.User.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteMember(int spaceId, int memberId)
         {
-            var requestingUserId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int requestingUserId = user.Id;
 
             try
             {
@@ -122,7 +164,6 @@ namespace BuddgetWeb.Areas.User.Controllers
 
             return RedirectToAction(nameof(Index), new { id = spaceId });
         }
-
 
         [HttpPost]
         public async Task<IActionResult> InviteMember(string email, int spaceId)
@@ -173,11 +214,18 @@ namespace BuddgetWeb.Areas.User.Controllers
 
             try
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                    return RedirectToAction("Login", "Account", new { area = "Identity" });
+                }
+
                 var financialSpaceDto = new FinancialSpaceDto
                 {
                     Name = model.Name,
                     Description = model.Description,
-                    OwnerId = int.Parse(User.FindFirst("UserId")?.Value ?? "1")
+                    OwnerId = user.Id,
                 };
 
                 if (model.Image != null)
@@ -190,11 +238,21 @@ namespace BuddgetWeb.Areas.User.Controllers
                     }
                 }
 
-                var resultMessage = await _financialSpaceService.CreateFinancialSpaceAsync(financialSpaceDto);
+                var (createdSpace, resultMessage) = await _financialSpaceService.CreateFinancialSpaceAsync(financialSpaceDto);
                 TempData["Message"] = resultMessage;
 
-                if (resultMessage.Contains("successfully", StringComparison.OrdinalIgnoreCase))
+                if (createdSpace != null)
                 {
+                    var createMemberDto = new CreateFinancialSpaceMemberDto
+                    {
+                        UserId = user.Id,
+                        FinancialSpaceId = createdSpace.Id,
+                        Role = "Owner",
+                    };
+
+                    await _financialSpaceMemberService.CreateAsync(createMemberDto);
+                    _logger.LogInformation("Owner added as a member to the financial space with ID {SpaceId}", createdSpace.Id);
+
                     return RedirectToAction(nameof(MySpaces));
                 }
                 else

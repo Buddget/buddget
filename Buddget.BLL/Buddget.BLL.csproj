@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
@@ -21,6 +22,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Buddget.DAL\Buddget.DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Buddget.Domain\Buddget.Domain.csproj" />
   </ItemGroup>
 
 </Project>

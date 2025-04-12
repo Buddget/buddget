@@ -6,4 +6,4 @@ namespace Buddget.BLL.DTOs
         public int FinancialSpaceId { get; set; }
         public string Role { get; set; }
     }
-} 
+}

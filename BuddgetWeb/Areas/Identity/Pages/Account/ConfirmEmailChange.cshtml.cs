@@ -5,6 +5,7 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Buddget.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,10 @@ namespace BuddgetWeb.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailChangeModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<UserEntity> _userManager;
+        private readonly SignInManager<UserEntity> _signInManager;
 
-        public ConfirmEmailChangeModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public ConfirmEmailChangeModel(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

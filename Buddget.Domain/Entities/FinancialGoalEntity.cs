@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Buddget.DAL.Entities
+namespace Buddget.Domain.Entities
 {
     public class FinancialGoalEntity
     {

@@ -1,7 +1,7 @@
 ﻿using Moq;
 using Buddget.BLL.Services.Implementations;
 using Buddget.DAL.Repositories.Interfaces;
-using Buddget.DAL.Entities;
+using Buddget.Domain.Entities;
 using AutoMapper;
 using Buddget.BLL.Mappers;
 using Buddget.BLL.DTOs;

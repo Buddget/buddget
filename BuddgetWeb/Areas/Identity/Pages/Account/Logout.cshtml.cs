@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Buddget.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +15,10 @@ namespace BuddgetWeb.Areas.Identity.Pages.Account
 {
     public class LogoutModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<UserEntity> _signInManager;
         private readonly ILogger<LogoutModel> _logger;
 
-        public LogoutModel(SignInManager<IdentityUser> signInManager, ILogger<LogoutModel> logger)
+        public LogoutModel(SignInManager<UserEntity> signInManager, ILogger<LogoutModel> logger)
         {
             _signInManager = signInManager;
             _logger = logger;

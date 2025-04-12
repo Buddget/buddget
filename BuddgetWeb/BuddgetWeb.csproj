@@ -33,8 +33,4 @@
     <ProjectReference Include="..\Buddget.BLL\Buddget.BLL.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Areas\Identity\Data\" />
-  </ItemGroup>
-
 </Project>

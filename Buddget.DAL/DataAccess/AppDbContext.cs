@@ -1,4 +1,4 @@
-﻿using Buddget.DAL.Entities;
+﻿using Buddget.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
