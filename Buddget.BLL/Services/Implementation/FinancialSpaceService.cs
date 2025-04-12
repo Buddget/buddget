@@ -147,6 +147,13 @@ namespace Buddget.BLL.Services.Implementations
                 return (null, "When providing ImageData, ImageName is required and vice versa.");
             }
 
+            var financialSpace = await GetFinancialSpaceByIdAsync(financialSpaceDto.Id);
+            if (financialSpace != null)
+            {
+                _logger.LogWarning($"Financial space with ID={financialSpace.Id} already exists.");
+                return (null, $"Financial space with ID={financialSpace.Id} already exists.");
+            }
+
             var spaceEntity = _mapper.Map<FinancialSpaceEntity>(financialSpaceDto);
             spaceEntity.CreatedAt = DateTime.UtcNow;
 
