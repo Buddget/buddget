@@ -1,6 +1,6 @@
 using Buddget.DAL.DataAccess;
-using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
+using Buddget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Buddget.DAL.Repositories.Implementations
@@ -52,7 +52,7 @@ namespace Buddget.DAL.Repositories.Implementations
 
             _context.FinancialSpaceMembers.Add(entity);
             await _context.SaveChangesAsync();
-            
+
             // Reload the entity with the User navigation property
             return await _context.FinancialSpaceMembers
                 .Include(m => m.User)

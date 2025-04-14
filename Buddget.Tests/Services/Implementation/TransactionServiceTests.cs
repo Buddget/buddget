@@ -2,7 +2,7 @@
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Enums;
 using Buddget.BLL.Services.Implementations;
-using Buddget.DAL.Entities;
+using Buddget.Domain.Entities;
 using Buddget.DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;

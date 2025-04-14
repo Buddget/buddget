@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
-using Buddget.DAL.Entities;
 using Buddget.DAL.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Buddget.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Buddget.BLL.Services.Implementations
@@ -36,7 +35,7 @@ namespace Buddget.BLL.Services.Implementations
         public async Task<FinancialSpaceDto> GetFinancialSpaceByIdAsync(int spaceId)
         {
             _logger.LogInformation("Getting financial space with ID {SpaceId}", spaceId);
-            
+
             // Get financial space
             var spaceEntity = await _financialSpaceRepository.GetFinancialSpaceAsync(spaceId);
             if (spaceEntity == null)
@@ -122,47 +121,48 @@ namespace Buddget.BLL.Services.Implementations
             }
         }
 
-        public async Task<string> CreateFinancialSpaceAsync(FinancialSpaceDto financialSpaceDto)
+        public async Task<(FinancialSpaceDto? createdSpace, string resultMessage)> CreateFinancialSpaceAsync(FinancialSpaceDto financialSpaceDto)
         {
             if (financialSpaceDto == null)
             {
                 _logger.LogWarning("Financial space data is required.");
-                return "Financial space data is required.";
+                return (null, "Financial space data is required.");
             }
 
-            if (financialSpaceDto.Name == null)
+            if (string.IsNullOrWhiteSpace(financialSpaceDto.Name))
             {
                 _logger.LogWarning("Name is required.");
-                return "Name is required.";
+                return (null, "Name is required.");
             }
 
-            if (financialSpaceDto.Description != null && financialSpaceDto.Description.Length > 1000)
+            if (financialSpaceDto.Description?.Length > 1000)
             {
                 _logger.LogWarning("Description cannot exceed 1000 characters.");
-                return "Description cannot exceed 1000 characters.";
+                return (null, "Description cannot exceed 1000 characters.");
             }
 
-            if ((financialSpaceDto.ImageData == null) != (financialSpaceDto.ImageData == null))
+            if ((financialSpaceDto.ImageData == null) != (financialSpaceDto.ImageName == null))
             {
-                _logger.LogWarning("When providing ImageData, ImageName is required and vica verca.");
-                return "When providing ImageData, ImageName is required and vica verca.";
+                _logger.LogWarning("When providing ImageData, ImageName is required and vice versa.");
+                return (null, "When providing ImageData, ImageName is required and vice versa.");
             }
 
             var financialSpace = await GetFinancialSpaceByIdAsync(financialSpaceDto.Id);
             if (financialSpace != null)
             {
                 _logger.LogWarning($"Financial space with ID={financialSpace.Id} already exists.");
-                return $"Financial space with ID={financialSpace.Id} already exists.";
+                return (null, $"Financial space with ID={financialSpace.Id} already exists.");
             }
 
             var spaceEntity = _mapper.Map<FinancialSpaceEntity>(financialSpaceDto);
-
             spaceEntity.CreatedAt = DateTime.UtcNow;
 
             await _financialSpaceRepository.AddAsync(spaceEntity);
 
             _logger.LogInformation("Financial space with ID {SpaceId} created successfully.", spaceEntity.Id);
-            return "Financial space created successfully.";
+
+            var createdDto = _mapper.Map<FinancialSpaceDto>(spaceEntity);
+            return (createdDto, "Financial space created successfully.");
         }
     }
 }

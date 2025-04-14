@@ -2,11 +2,16 @@ using Buddget.BLL.Mappers;
 using Buddget.BLL.Services.Implementation;
 using Buddget.BLL.Services.Implementations;
 using Buddget.BLL.Services.Interfaces;
+using Buddget.BLL.Utilities;
 using Buddget.DAL.DataAccess;
 using Buddget.DAL.Repositories.Implementations;
 using Buddget.DAL.Repositories.Interfaces;
+using Buddget.Domain.Entities;
 using DotNetEnv;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +29,15 @@ if (string.IsNullOrEmpty(connectionString))
 // Register the DbContext with PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
+{
+    // Налаштування пароля, підтвердження пошти, політики безпеки і т.д.
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IFinancialSpaceRepository, FinancialSpaceRepository>();
 builder.Services.AddScoped<IFinancialSpaceMemberRepository, FinancialSpaceMemberRepository>();
@@ -55,6 +69,7 @@ builder.Host.UseSerilog((context, loggerConfig) =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
@@ -69,10 +84,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapStaticAssets();
+app.MapRazorPages();
 
 app.MapControllerRoute(
     name: "default",

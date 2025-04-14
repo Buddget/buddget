@@ -1,15 +1,11 @@
 using AutoMapper;
 using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Implementations;
-using Buddget.DAL.Entities;
+using Buddget.Domain.Entities;
 using Buddget.DAL.Repositories.Interfaces;
-using Xunit;
 using Buddget.BLL.Mappers;
 using Buddget.BLL.Services.Interfaces;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace Buddget.Tests.Services.Implementation
@@ -279,10 +275,12 @@ namespace Buddget.Tests.Services.Implementation
                 .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+            var (createdSpace, resultMessage) = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
 
             // Assert
-            Assert.Equal("Financial space created successfully.", result);
+            Assert.Equal("Financial space created successfully.", resultMessage);
+            Assert.NotNull(createdSpace);
+            Assert.Equal(financialSpaceDto.Name, createdSpace.Name);
             _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Once);
         }
 
@@ -293,10 +291,11 @@ namespace Buddget.Tests.Services.Implementation
             FinancialSpaceDto financialSpaceDto = null;
 
             // Act
-            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+            var (createdSpace, resultMessage) = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
 
             // Assert
-            Assert.Equal("Financial space data is required.", result);
+            Assert.Equal("Financial space data is required.", resultMessage);
+            Assert.Null(createdSpace);
             _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Never);
         }
 
@@ -314,10 +313,11 @@ namespace Buddget.Tests.Services.Implementation
             };
 
             // Act
-            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+            var (createdSpace, resultMessage) = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
 
             // Assert
-            Assert.Equal("Name is required.", result);
+            Assert.Equal("Name is required.", resultMessage);
+            Assert.Null(createdSpace);
             _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Never);
         }
 
@@ -351,10 +351,11 @@ namespace Buddget.Tests.Services.Implementation
                 .ReturnsAsync(existingFinancialSpaceEntity);
 
             // Act
-            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+            var (createdSpace, resultMessage) = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
 
             // Assert
-            Assert.Equal($"Financial space with ID={existingFinancialSpaceEntity.Id} already exists.", result);
+            Assert.Equal($"Financial space with ID={existingFinancialSpaceEntity.Id} already exists.", resultMessage);
+            Assert.Null(createdSpace);
             _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Never);
         }
 
@@ -373,10 +374,11 @@ namespace Buddget.Tests.Services.Implementation
             };
 
             // Act
-            var result = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
+            var (createdSpace, resultMessage) = await _service.CreateFinancialSpaceAsync(financialSpaceDto);
 
             // Assert
-            Assert.Equal("Description cannot exceed 1000 characters.", result);
+            Assert.Equal("Description cannot exceed 1000 characters.", resultMessage); // Fix: Use resultMessage instead of result
+            Assert.Null(createdSpace);
             _mockFinancialSpaceRepository.Verify(repo => repo.AddAsync(It.IsAny<FinancialSpaceEntity>()), Times.Never);
         }
     }

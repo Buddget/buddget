@@ -1,7 +1,7 @@
 ﻿using Moq;
 using Buddget.BLL.Services.Implementations;
 using Buddget.DAL.Repositories.Interfaces;
-using Buddget.DAL.Entities;
+using Buddget.Domain.Entities;
 using AutoMapper;
 using Buddget.BLL.Mappers;
 using Buddget.BLL.DTOs;
@@ -68,7 +68,7 @@ namespace Buddget.Tests.Services.Implementation
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john.doe@example.com",
-                Role = "user",
+                //Role = "user",
                 RegisteredAt = DateTime.UtcNow
             };
 
@@ -114,7 +114,7 @@ namespace Buddget.Tests.Services.Implementation
                 FirstName = "John",
                 LastName = "Doe",
                 Email = email,
-                Role = "user",
+                //Role = "user",
                 RegisteredAt = DateTime.UtcNow
             };
 

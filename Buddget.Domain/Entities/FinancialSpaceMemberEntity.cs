@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Buddget.DAL.Entities
+namespace Buddget.Domain.Entities
 {
     public class FinancialSpaceMemberEntity
     {

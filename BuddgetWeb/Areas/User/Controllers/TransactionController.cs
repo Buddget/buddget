@@ -3,21 +3,25 @@ using Buddget.BLL.Enums;
 using Buddget.BLL.DTOs;
 using Buddget.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Buddget.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace BuddgetWeb.Areas.User.Controllers
 {
     [Area("User")]
     public class TransactionController : Controller
     {
+        private readonly UserManager<UserEntity> _userManager;
         private readonly ITransactionService _transactionService;
         private readonly IFinancialSpaceService _financialSpaceService;
         private readonly IMapper _mapper;
-                private readonly ICategoryService _categoryService; 
+        private readonly ICategoryService _categoryService;
 
         private readonly ILogger<TransactionController> _logger;
 
-        public TransactionController(ITransactionService transactionService,ICategoryService categoryService, IFinancialSpaceService financialSpaceService, IMapper mapper, ILogger<TransactionController> logger)
+        public TransactionController(UserManager<UserEntity> userManager ,ITransactionService transactionService,ICategoryService categoryService, IFinancialSpaceService financialSpaceService, IMapper mapper, ILogger<TransactionController> logger)
         {
+            _userManager = userManager;
             _transactionService = transactionService;
             _financialSpaceService = financialSpaceService;
             _mapper = mapper;
@@ -37,16 +41,24 @@ namespace BuddgetWeb.Areas.User.Controllers
             }
 
             var transactions = await _transactionService.GetSortedTransactionsBySpaceIdAsync(id, sortColumn, ascending);
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int userId = user.Id;
+
             var userSpaces = await _financialSpaceService.GetFinancialSpacesUserIsMemberOrOwnerOf(userId);
 
             _logger.LogInformation($"Tried retrieving transactions for space with ID {id}. Retrieved {transactions.Count()} unique transactions");
 
             var userCategories = await _categoryService.GetCustomCategoriesByUserIdAsync(userId);
-            
+
             // Отримуємо дефолтні категорії
             var defaultCategories = await _categoryService.GetDefaultCategoriesAsync();
-            
+
             // Об'єднуємо їх в один список, видаляємо дублікати за Id
             var allCategories = userCategories.Concat(defaultCategories).DistinctBy(c => c.Id).ToList();
 
@@ -67,7 +79,14 @@ namespace BuddgetWeb.Areas.User.Controllers
         [Route("User/Transactions/Delete")]
         public async Task<IActionResult> Delete(int transactionId, int financialSpaceId)
         {
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int userId = user.Id;
 
             _logger.LogInformation($"User {userId} attempting to delete transaction {transactionId} from financial space {financialSpaceId}");
 
@@ -82,7 +101,14 @@ namespace BuddgetWeb.Areas.User.Controllers
         [Route("User/Transactions/Move")]
         public async Task<IActionResult> Move(int transactionId, int targetSpaceId)
         {
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int userId = user.Id;
 
             _logger.LogInformation($"User {userId} attempting to move transaction {transactionId} to financial space {targetSpaceId}");
 
@@ -97,7 +123,14 @@ namespace BuddgetWeb.Areas.User.Controllers
         [Route("User/Transactions/Create")]
         public async Task<IActionResult> Create(string Name, decimal Amount, string Type, int? CategoryId, string Description, int financialSpaceId)
         {
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "1");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int userId = user.Id;
 
             _logger.LogInformation($"User {userId} creating new transaction in space {financialSpaceId}");
 
@@ -110,7 +143,7 @@ namespace BuddgetWeb.Areas.User.Controllers
                 Description = Description,
                 FinancialSpaceId = financialSpaceId,
                 AuthorId = userId,
-                Date = DateTime.UtcNow
+                Date = DateTime.UtcNow,
             };
 
             var resultMessage = await _transactionService.CreateTransactionAsync(transaction);

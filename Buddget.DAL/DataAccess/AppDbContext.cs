@@ -1,16 +1,17 @@
-﻿using Buddget.DAL.Entities;
+﻿using Buddget.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Buddget.DAL.DataAccess
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<UserEntity, IdentityRole<int>, int>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<UserEntity> Users { get; set; }
         public DbSet<CategoryEntity> Categories { get; set; }
         public DbSet<TransactionEntity> Transactions { get; set; }
         public DbSet<FinancialSpaceEntity> FinancialSpaces { get; set; }
@@ -21,6 +22,8 @@ namespace Buddget.DAL.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // Configure UserEntity
             modelBuilder.Entity<UserEntity>(entity =>
             {
