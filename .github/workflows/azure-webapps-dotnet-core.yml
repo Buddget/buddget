@@ -91,6 +91,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: Buddget
+          SONAR_PROJECT_KEY: Buddget_buddget
         with:
           args: >
             -Dsonar.cs.vscoveragexml.reportsPaths=TestResults/**/*.xml
