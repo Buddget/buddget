@@ -16,12 +16,12 @@
 # For more information on GitHub Actions for Azure: https://github.com/Azure/Actions
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
-name: Build, Test, Analyze and Deploy ASP.Net Core app
+name: Build, Test, Analyze and Deploy ASP.NET Core app
 
 env:
-  AZURE_WEBAPP_NAME: buddget-g5h3bcg0c2grb4dx    # set this to the name of your Azure Web App
-  AZURE_WEBAPP_PACKAGE_PATH: '.'      # path to your web app project
-  DOTNET_VERSION: '9.*'                 # .NET version
+  AZURE_WEBAPP_NAME: buddget         # Назва Azure App Service
+  AZURE_WEBAPP_PACKAGE_PATH: './publish' # Куди буде пабліш
+  DOTNET_VERSION: '9.*'               # Версія .NET
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
@@ -53,26 +53,29 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Build project
-        run: dotnet build --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore
 
-      - name: Run tests with coverage
-        run: dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
 
-      - name: Upload coverage report
+      - name: Test with coverage
+        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: test-results
           path: ./TestResults
 
       - name: Publish app
-        run: dotnet publish -c Release -o ${{ env.DOTNET_ROOT }}/myapp
+        run: dotnet publish --no-build -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
       - name: Upload app artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-artifact
-          path: ${{ env.DOTNET_ROOT }}/myapp
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
   sonarcloud:
     runs-on: ubuntu-latest
@@ -81,7 +84,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
@@ -97,8 +100,8 @@ jobs:
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-      - name: Build project for analysis
-        run: dotnet build --configuration Release
+      - name: Build for SonarCloud
+        run: dotnet build --no-restore --configuration Release
 
       - name: End SonarCloud analysis
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
