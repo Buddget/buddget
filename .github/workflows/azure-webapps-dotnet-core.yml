@@ -98,7 +98,7 @@ jobs:
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Build for SonarCloud
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build --configuration Release
 
       - name: End SonarCloud analysis
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
