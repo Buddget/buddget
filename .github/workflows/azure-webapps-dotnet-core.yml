@@ -3,7 +3,7 @@ name: Build, Test, Analyze and Deploy ASP.NET Core app
 env:
   AZURE_WEBAPP_NAME: buddget         
   AZURE_WEBAPP_PACKAGE_PATH: '.'
-  DOTNET_VERSION: '9.0.x'  # <--- Точно вкажи 9.0.x тут
+  DOTNET_VERSION: '9.0.x'  
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
@@ -93,7 +93,7 @@ jobs:
     permissions:
       contents: none
     runs-on: ubuntu-latest
-    needs: [build-and-test, sonarcloud]
+    needs: build-and-test
     environment:
       name: 'Development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
