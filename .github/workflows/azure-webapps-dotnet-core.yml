@@ -27,12 +27,6 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Install SonarCloud Scanner
-      run: dotnet tool install --global dotnet-sonarscanner
-
-    - name: Begin SonarCloud Analysis
-      run: |
-        dotnet sonarscanner begin /k:"your-sonarcloud-project-key" /o:"your-sonarcloud-organization" /d:sonar.token="${{ env.SONAR_TOKEN }}"
 
     - name: Build the project
       run: dotnet build --configuration Release
