@@ -112,7 +112,7 @@ jobs:
       - name: Download app artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: app-artifact
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
