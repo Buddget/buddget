@@ -117,7 +117,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-artifact
-
+      - name: Run app to log connection string
+        run: dotnet run --project ./BuddgetWeb/BuddgetWeb.csproj
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
