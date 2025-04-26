@@ -103,6 +103,11 @@ jobs:
         with:
           name: app-artifact
 
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Run app to log connection string
+        run: dotnet run --project ./BuddgetWeb/BuddgetWeb.csproj
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
