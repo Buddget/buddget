@@ -19,9 +19,9 @@
 name: Build, Test, Analyze and Deploy ASP.NET Core app
 
 env:
-  AZURE_WEBAPP_NAME: buddget         # Назва Azure App Service
-  AZURE_WEBAPP_PACKAGE_PATH: './publish' # Куди буде пабліш
-  DOTNET_VERSION: '9.*'               # Версія .NET
+  AZURE_WEBAPP_NAME: buddget         
+  AZURE_WEBAPP_PACKAGE_PATH: './publish'
+  DOTNET_VERSION: '9.*'               
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET
+      - name: Set up .NET Сore
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
@@ -53,14 +53,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Restore dependencies
-        run: dotnet restore
-
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build --configuration Release
 
       - name: Test with coverage
-        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -69,7 +66,7 @@ jobs:
           path: ./TestResults
 
       - name: Publish app
-        run: dotnet publish --no-build -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: dotnet publish -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
       - name: Upload app artifact
         uses: actions/upload-artifact@v4
