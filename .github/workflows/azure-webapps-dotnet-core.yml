@@ -89,12 +89,12 @@ jobs:
       - name: Run SonarCloud scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORGANIZATION: Buddget
-          SONAR_PROJECT_KEY: Buddget_buddget
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
+            -Dsonar.organization=Buddget
+            -Dsonar.projectKey=Buddget_buddget
             -Dsonar.cs.vscoveragexml.reportsPaths=TestResults/**/*.xml
 
   deploy:
