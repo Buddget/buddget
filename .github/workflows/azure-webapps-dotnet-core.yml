@@ -19,7 +19,7 @@
 name: Build, Test, Analyze and Deploy ASP.Net Core app
 
 env:
-  AZURE_WEBAPP_NAME: buddget    # set this to the name of your Azure Web App
+  AZURE_WEBAPP_NAME: buddget-g5h3bcg0c2grb4dx    # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # path to your web app project
   DOTNET_VERSION: '9.*'                 # .NET version
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
