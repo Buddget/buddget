@@ -31,9 +31,6 @@ jobs:
     - name: Build the project
       run: dotnet build --configuration Release
 
-    - name: End SonarCloud Analysis
-      run: dotnet sonarscanner end /d:sonar.token="${{ env.SONAR_TOKEN }}"
-
     - name: Publish the app
       run: dotnet publish -c Release -o ./publish
 
