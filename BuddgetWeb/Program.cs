@@ -13,26 +13,37 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Azure.Identity;
+using Azure.Extensions.Configuration.Secrets;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-Env.Load();
+//Env.Load();
 
-string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
+//string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
 
-// Ensure that the connection string is not null or empty
+builder.Configuration.AddEnvironmentVariables();
+
+var keyVaultName = builder.Configuration["KeyVaultName"];
+
+builder.Configuration.AddAzureKeyVault(
+    new Uri($"https://{keyVaultName}.vault.azure.net/"),
+    new DefaultAzureCredential());
+
+var connectionString = builder.Configuration["DbConnectionString"];
+
 if (string.IsNullOrEmpty(connectionString))
 {
     throw new InvalidOperationException("The connection string is not defined.");
 }
 
-// Register the DbContext with PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddIdentity<UserEntity, IdentityRole<int>>(options =>
 {
-    // Налаштування пароля, підтвердження пошти, політики безпеки і т.д.
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅ.пїЅ.
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
@@ -53,6 +64,8 @@ builder.Services.AddScoped<IFinancialGoalSpaceService, FinancialGoalSpaceService
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>(); // Add this line
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 // Add mappers
 builder.Services.AddAutoMapper(
