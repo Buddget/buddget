@@ -43,8 +43,8 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Test with coverage
-        run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+      - name: Test with coverage and output JUnit XML
+        run: dotnet test --configuration Release --logger "junit;logfile=./TestResults/test-result.xml" --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -60,10 +60,10 @@ jobs:
         with:
           name: app-artifact
           path: ${{env.DOTNET_ROOT}}/myapp
-      - name: Report test results in PR
-        uses: stefanzweifel/junit-action@v2
+      - name: Publish Test Results in PR
+        uses: mikepenz/action-junit-report@v5
         with:
-          junit_files: './TestResults/**/*.xml'
+          junit_files: './TestResults/test-result.xml'
 
   sonarcloud:
     runs-on: ubuntu-latest
