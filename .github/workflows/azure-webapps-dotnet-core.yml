@@ -60,10 +60,7 @@ jobs:
         with:
           name: app-artifact
           path: ${{env.DOTNET_ROOT}}/myapp
-      - name: Report test results in PR
-        uses: stefanzweifel/junit-action@v2
-        with:
-          junit_files: './TestResults/**/*.xml'
+
 
   sonarcloud:
     runs-on: ubuntu-latest
