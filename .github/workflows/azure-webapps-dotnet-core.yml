@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+          include-prerelease: true
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
@@ -52,7 +53,7 @@ jobs:
           path: ./TestResults
 
       - name: Publish app
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ./BuddgetWeb/BuddgetWeb.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload app artifact
         uses: actions/upload-artifact@v4
@@ -71,6 +72,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+          run: dotnet publish ./BuddgetWeb/BuddgetWeb.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
 
       - name: Install SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
@@ -103,11 +106,6 @@ jobs:
         with:
           name: app-artifact
 
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Run app to log connection string
-        run: dotnet run --project ./BuddgetWeb/BuddgetWeb.csproj
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
