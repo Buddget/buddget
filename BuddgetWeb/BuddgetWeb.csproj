@@ -33,6 +33,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Buddget.BLL\Buddget.BLL.csproj" />
+    <ProjectReference Include="..\Buddget.DAL\Buddget.DAL.csproj" />
+    <ProjectReference Include="..\Buddget.Domain\Buddget.Domain.csproj" />
+    <ProjectReference Include="..\Buddget.Tests\Buddget.Tests.csproj" />
   </ItemGroup>
 
 </Project>
