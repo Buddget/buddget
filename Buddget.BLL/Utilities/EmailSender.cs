@@ -13,14 +13,13 @@ namespace Buddget.BLL.Utilities
         private readonly int _smtpPort = 587;
         private readonly string _smtpUser;
         private readonly string _smtpPass;
-        //private readonly string _smtpUser = Environment.GetEnvironmentVariable("SMTP_USER");
-        //private readonly string _smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
-
         public EmailSender(IConfiguration configuration)
         {
             _configuration = configuration;
-            _smtpUser = _configuration["smtpUser"];
-            _smtpPass = _configuration["smtpPass"];
+            _smtpUser = Environment.GetEnvironmentVariable("SMTP_USER");
+            _smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
+            //_smtpUser = _configuration["smtpUser"];
+            //_smtpPass = _configuration["smtpPass"];
         }
 
 

@@ -32,6 +32,9 @@ namespace BuddgetWeb.Areas.Identity.Pages.Account.Manage
         /// </summary>
         public string Username { get; set; }
 
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -59,13 +62,27 @@ namespace BuddgetWeb.Areas.Identity.Pages.Account.Manage
             //[Phone]
             //[Display(Name = "Phone number")]
             //public string PhoneNumber { get; set; }
+
+
+            
+            [Required]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [Required]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
+            
         }
 
         private async Task LoadAsync(UserEntity user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
+            var userData = await _userManager.GetUserAsync(User);
 
             Username = userName;
+            FirstName = userData.FirstName;
+            LastName = userData.LastName;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -93,7 +110,18 @@ namespace BuddgetWeb.Areas.Identity.Pages.Account.Manage
                 await LoadAsync(user);
                 return Page();
             }
-
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                foreach (var error in updateResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                await LoadAsync(user);
+                return Page();
+            };
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();

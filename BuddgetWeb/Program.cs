@@ -19,19 +19,19 @@ using Azure.Extensions.Configuration.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Env.Load();
+Env.Load();
 
-//string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
+string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
 
 builder.Configuration.AddEnvironmentVariables();
 
 var keyVaultName = builder.Configuration["KeyVaultName"];
 
-builder.Configuration.AddAzureKeyVault(
-    new Uri($"https://{keyVaultName}.vault.azure.net/"),
-    new DefaultAzureCredential());
+//builder.Configuration.AddAzureKeyVault(
+//    new Uri($"https://{keyVaultName}.vault.azure.net/"),
+//    new DefaultAzureCredential());
 
-var connectionString = builder.Configuration["DbConnectionString"];
+//var connectionString = builder.Configuration["DbConnectionString"];
 
 if (string.IsNullOrEmpty(connectionString))
 {

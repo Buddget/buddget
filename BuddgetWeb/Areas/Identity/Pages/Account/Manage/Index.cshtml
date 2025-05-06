@@ -14,6 +14,12 @@
             <div class="form-floating mb-3">
                 <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
                 <label asp-for="Username" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control" placeholder="Please choose your first name." />
+                <label asp-for="FirstName" class="form-label"></label>
+
+                <input asp-for="LastName" class="form-control" placeholder="Please choose your last name." />
+                <label asp-for="LastName" class="form-label"></label>
+
             </div>
             <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
         </form>
