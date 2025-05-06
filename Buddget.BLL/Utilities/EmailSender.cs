@@ -11,16 +11,16 @@ namespace Buddget.BLL.Utilities
         private readonly IConfiguration _configuration;
         private readonly string _smtpHost = "smtp.gmail.com";
         private readonly int _smtpPort = 587;
-        private readonly string _smtpUser;
-        private readonly string _smtpPass;
-        //private readonly string _smtpUser = Environment.GetEnvironmentVariable("SMTP_USER");
-        //private readonly string _smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
+        //private readonly string _smtpUser;
+        //private readonly string _smtpPass;
+        private readonly string _smtpUser = Environment.GetEnvironmentVariable("SMTP_USER");
+        private readonly string _smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
 
         public EmailSender(IConfiguration configuration)
         {
             _configuration = configuration;
-            _smtpUser = _configuration["smtpUser"];
-            _smtpPass = _configuration["smtpPass"];
+            //_smtpUser = _configuration["smtpUser"];
+            //_smtpPass = _configuration["smtpPass"];
         }
 
 

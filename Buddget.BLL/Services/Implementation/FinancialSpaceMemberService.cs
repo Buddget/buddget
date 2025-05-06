@@ -10,17 +10,20 @@ namespace Buddget.BLL.Services.Implementation
     public class FinancialSpaceMemberService : IFinancialSpaceMemberService
     {
         private readonly IFinancialSpaceMemberRepository _financialSpaceMemberRepository;
+        private readonly IFinancialSpaceRepository _financialSpaceRepository;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private readonly ILogger<FinancialSpaceMemberService> _logger;
 
         public FinancialSpaceMemberService(
             IFinancialSpaceMemberRepository financialSpaceMemberRepository,
+            IFinancialSpaceRepository financialSpaceRepository,
             IUserService userService,
             IMapper mapper,
             ILogger<FinancialSpaceMemberService> logger)
         {
             _financialSpaceMemberRepository = financialSpaceMemberRepository;
+            _financialSpaceRepository = financialSpaceRepository;
             _userService = userService;
             _mapper = mapper;
             _logger = logger;
@@ -230,6 +233,50 @@ namespace Buddget.BLL.Services.Implementation
             {
                 _logger.LogError(ex, "Error occurred while deleting member {MemberId} from space {SpaceId}", memberId, spaceId);
                 return "An error occurred while deleting the member.";
+            }
+        }
+
+        public async Task<string> TransferOwnershipAsync(int spaceId, int memberId, int requestingUserId)
+        {
+            try
+            {
+                var members = await _financialSpaceMemberRepository.GetMembersBySpaceIdAsync(spaceId);
+                var financialSpace = await _financialSpaceRepository.GetByIdAsync(spaceId);
+                var requestingMember = members.FirstOrDefault(m => m.UserId == requestingUserId);
+                var memberToTransferOwnership = members.FirstOrDefault(m => m.UserId == memberId);
+
+                if (requestingMember == null || requestingMember.Role != "Owner")
+                {
+                    return "Only the owner can transfer ownership.";
+                }
+
+                if (memberToTransferOwnership == null)
+                {
+                    return "Member not found.";
+                }
+
+                if (memberToTransferOwnership.Role == "Owner")
+                {
+                    return "Cannot transfer ownership to the owner.";
+                }
+
+                if (memberToTransferOwnership.Role == "Banned")
+                {
+                    return "Cannot transfer ownership to banned user.";
+                }
+
+                memberToTransferOwnership.Role = "Owner";
+                requestingMember.Role = "Member";
+                financialSpace.OwnerId = memberToTransferOwnership.UserId;
+                await _financialSpaceMemberRepository.UpdateAsync(requestingMember);
+                await _financialSpaceMemberRepository.UpdateAsync(memberToTransferOwnership);
+
+                return "Ownership successfully transferred.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while transferring the ownership to member {MemberId} in space {SpaceId}", memberId, spaceId);
+                return "An error occurred while transferring the ownership.";
             }
         }
 

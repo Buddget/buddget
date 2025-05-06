@@ -13,6 +13,7 @@ namespace Buddget.Tests.Services.Implementation
     public class FinancialSpaceMemberServiceTests
     {
         private readonly Mock<IFinancialSpaceMemberRepository> _mockFinancialSpaceMemberRepository;
+        private readonly Mock<IFinancialSpaceRepository> _mockFinancialSpaceRepository;
         private readonly Mock<IUserService> _mockUserService;
         private readonly IMapper _mapper;
         private readonly Mock<ILogger<FinancialSpaceMemberService>> _mockLogger;
@@ -22,6 +23,7 @@ namespace Buddget.Tests.Services.Implementation
         {
             // Initialize the mock repository
             _mockFinancialSpaceMemberRepository = new Mock<IFinancialSpaceMemberRepository>();
+            _mockFinancialSpaceRepository = new Mock<IFinancialSpaceRepository>();
             _mockUserService = new Mock<IUserService>();
             _mockLogger = new Mock<ILogger<FinancialSpaceMemberService>>();
             _mapper = new MapperConfiguration(cfg => cfg.AddProfile(new FinancialSpaceMemberProfile())).CreateMapper();
@@ -29,6 +31,7 @@ namespace Buddget.Tests.Services.Implementation
             // Create the service with mocked dependencies
             _service = new FinancialSpaceMemberService(
                 _mockFinancialSpaceMemberRepository.Object,
+                _mockFinancialSpaceRepository.Object,
                 _mockUserService.Object,
                 _mapper,
                 _mockLogger.Object
@@ -454,5 +457,98 @@ namespace Buddget.Tests.Services.Implementation
             Assert.Contains("Member not found.", result);
             _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
         }
+
+
+        [Fact]
+        public async Task TransferOwnershipAsync_SuccessfullyTransfersOwnership()
+        {
+            // Arrange
+            var spaceId = 1;
+            var currentOwnerId = 1;
+            var newOwnerId = 2;
+
+            var financialSpace = new FinancialSpaceEntity
+            {
+                Id = spaceId,
+                Name = "Test Space",
+                OwnerId = currentOwnerId
+            };
+
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity
+                {
+                    Id = 1,
+                    UserId = currentOwnerId,
+                    Role = "Owner",
+                    FinancialSpaceId = spaceId,
+                    FinancialSpace = financialSpace
+                },
+                new FinancialSpaceMemberEntity
+                {
+                    Id = 2,
+                    UserId = newOwnerId,
+                    Role = "Member",
+                    FinancialSpaceId = spaceId,
+                    FinancialSpace = financialSpace
+                }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(members);
+
+            _mockFinancialSpaceRepository
+                .Setup(repo => repo.GetByIdAsync(spaceId))
+                .ReturnsAsync(financialSpace);
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _service.TransferOwnershipAsync(spaceId, newOwnerId, currentOwnerId);
+
+            // Assert
+            Assert.Contains("Ownership successfully transferred", result);
+
+            _mockFinancialSpaceMemberRepository.Verify(repo =>
+                repo.UpdateAsync(It.Is<FinancialSpaceMemberEntity>(m =>
+                    m.UserId == currentOwnerId && m.Role == "Member")), Times.Once);
+
+            _mockFinancialSpaceMemberRepository.Verify(repo =>
+                repo.UpdateAsync(It.Is<FinancialSpaceMemberEntity>(m =>
+                    m.UserId == newOwnerId && m.Role == "Owner")), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task TransferOwnershipAsync_Fails_WhenRequestingUserIsNotOwner()
+        {
+            // Arrange
+            var spaceId = 1;
+            var currentOwnerId = 1;
+            var newOwnerId = 2;
+            var nonOwnerId = 3;
+
+            var members = new List<FinancialSpaceMemberEntity>
+            {
+                new FinancialSpaceMemberEntity { Id = 1, UserId = currentOwnerId, Role = "Owner" },
+                new FinancialSpaceMemberEntity { Id = 2, UserId = newOwnerId, Role = "Member" }
+            };
+
+            _mockFinancialSpaceMemberRepository
+                .Setup(repo => repo.GetMembersBySpaceIdAsync(spaceId))
+                .ReturnsAsync(members);
+
+            // Act
+            var result = await _service.TransferOwnershipAsync(spaceId, newOwnerId, nonOwnerId);
+
+            // Assert
+            Assert.Contains("Only the owner can transfer ownership.", result);
+            _mockFinancialSpaceMemberRepository.Verify(repo => repo.UpdateAsync(It.IsAny<FinancialSpaceMemberEntity>()), Times.Never);
+        }
+
+        
     }
 }

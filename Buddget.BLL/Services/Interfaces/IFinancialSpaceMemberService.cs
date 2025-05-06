@@ -9,6 +9,7 @@ namespace Buddget.BLL.Services.Interfaces
         Task<string> BanMemberAsync(int spaceId, int memberId, int requestingUserId);
         Task<string> UnbanMemberAsync(int spaceId, int memberId, int requestingUserId);
         Task<string> DeleteMemberAsync(int spaceId, int memberId, int requestingUserId);
+        Task<string> TransferOwnershipAsync(int spaceId, int memberId, int requestingUserId);
         Task InviteMember(string email, int spaceId);
         Task<FinancialSpaceMemberDto> CreateAsync(CreateFinancialSpaceMemberDto createDto);
     }

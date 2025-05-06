@@ -95,6 +95,11 @@
                                                     <input type="hidden" name="memberId" value="@member.Id" />
                                                 <button type="submit" class="btn btn-sm btn-danger delete-btn">Delete</button>
                                                 </form>
+                                            <form action="@Url.Action("TransferOwnershipToMember", "FinancialSpace", new { area = "User" })" method="post" style="margin: 0">
+                                                <input type="hidden" name="spaceId" value="@Model.Id" />
+                                                <input type="hidden" name="memberId" value="@member.Id" />
+                                                <button type="submit" class="btn btn-sm btn-danger transfer-ownership-btn">Transfer ownership</button>
+                                            </form>
                                             }
                                     </div>
                                 }
@@ -376,6 +381,15 @@
         cursor: pointer;
         transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
 
+    }
+
+    .transfer-ownership-btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        background-color: #F59E0B;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
     }
 
     .ban-btn:hover {

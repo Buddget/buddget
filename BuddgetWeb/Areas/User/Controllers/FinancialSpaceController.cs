@@ -166,6 +166,35 @@ namespace BuddgetWeb.Areas.User.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> TransferOwnershipToMember(int spaceId, int memberId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Failed to retrieve the current user. The user may not be authenticated.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            int requestingUserId = user.Id;
+
+            try
+            {
+                _logger.LogInformation("Tranfering ownership from member {requestingUserId} to member {MemberId} in space {SpaceId}", requestingUserId, memberId, spaceId);
+                var resultMessage = await _financialSpaceMemberService.TransferOwnershipAsync(spaceId, memberId, requestingUserId);
+                _logger.LogInformation("The ownership successfully transfered from member {requestingUserId} to member {MemberId} in space {SpaceId}", requestingUserId, memberId, spaceId);
+
+                TempData["Message"] = resultMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error transfering the ownership from member {requestingUserId} to member {MemberId} in space {SpaceId}", requestingUserId, memberId, spaceId);
+                TempData["Message"] = "An unexpected error occurred while trying to transfer the ownership.";
+            }
+
+            return RedirectToAction(nameof(Index), new { id = spaceId });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> InviteMember(string email, int spaceId)
         {
             try
