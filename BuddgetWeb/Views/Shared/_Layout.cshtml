@@ -45,6 +45,30 @@
         </main>
     </div>
 
+    <!-- Toast Notification for TempData["Message"] -->
+    @if (TempData["Message"] != null)
+    {
+        <div aria-live="polite" aria-atomic="true" class="position-fixed start-50 translate-middle-x top-0 p-3" style="z-index: 1080;">
+            <div id="tempDataToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        @TempData["Message"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var toastEl = document.getElementById('tempDataToast');
+                if (toastEl) {
+                    var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                    toast.show();
+                }
+            });
+        </script>
+    }
+
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - Buddget - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>

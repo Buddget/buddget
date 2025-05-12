@@ -131,9 +131,7 @@
 
         @if (TempData?["Message"]?.ToString() != null)
         {
-            <div class="alert @(TempData["Message"]?.ToString()?.StartsWith("Successfully") == true ? "alert-success" : "alert-danger") mt-3">
-                @TempData["Message"]
-            </div>
+            // Removed alert box for TempData["Message"]
         }
         <!-- Recent Transactions Section -->
         <div class="card transactions-section">
