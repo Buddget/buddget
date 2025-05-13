@@ -4,7 +4,7 @@
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
-<ul class="nav nav-pills flex-column">
+<ul class="nav nav-pills flex-column manage-nav-green">
     <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
@@ -15,3 +15,20 @@
     <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.UserCategoriesNavClass(ViewContext)" id="user-categories" asp-page="./UserCategories">User categories</a></li>
 </ul>
+
+<style>
+.manage-nav-green .nav-link.active, .manage-nav-green .show > .nav-link {
+    color: #fff !important;
+    background-color: #17632d !important;
+    border-color: #17632d !important;
+}
+.manage-nav-green .nav-link {
+    color: #17632d;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+}
+.manage-nav-green .nav-link:hover, .manage-nav-green .nav-link:focus {
+    color: #145214;
+    background-color: #eaf7ef;
+}
+</style>
