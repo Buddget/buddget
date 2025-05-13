@@ -5,22 +5,57 @@
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
-
-<div class="row">
-    <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
-        <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+<div class="d-flex justify-content-center align-items-center min-vh-70">
+    <div class="profile-card p-5 shadow-lg">
+        <h3 class="text-center mb-4" style="color:#17632d;"><i class="bi bi-shield-lock me-2"></i>@ViewData["Title"]</h3>
+        <p class="mb-3 text-center">Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+        <p class="mb-4 text-center">
+            <strong style="color:#dc3545;">Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
         </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post">
-            <button class="btn btn-primary" type="submit">Download</button>
+        <form id="download-data" asp-page="DownloadPersonalData" method="post" class="mb-3">
+            <button class="btn custom-btn w-100" type="submit">Download</button>
         </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger">Delete</a>
-        </p>
+        <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger w-100">Delete</a>
     </div>
 </div>
+
+<style>
+    .min-vh-70 {
+        min-height: 70vh;
+    }
+    .profile-card {
+        background: #fff;
+        border-radius: 18px;
+        max-width: 480px;
+        margin: 40px auto;
+        box-shadow: 0 4px 24px rgba(23, 99, 45, 0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+    }
+    .custom-btn {
+        background-color: #17632d;
+        color: white;
+        border: none;
+        transition: background 0.3s ease, transform 0.2s ease;
+        border-radius: 0.3125rem;
+        font-weight: bold;
+        font-size: 1.1rem;
+        padding: 0.75rem 0;
+    }
+    .custom-btn:hover {
+        background-color: #145214;
+        color: white;
+        transform: scale(1.05);
+    }
+    .profile-card h3 i {
+        color: #17632d;
+    }
+    .btn-danger {
+        border-radius: 0.3125rem;
+        font-weight: bold;
+        font-size: 1.1rem;
+        padding: 0.75rem 0;
+        margin-top: 0.5rem;
+    }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

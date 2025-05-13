@@ -5,42 +5,43 @@
    ViewData["ActivePage"] = ManageNavPages.UserCategories;  
 }  
 
-<h3>@ViewData["Title"]</h3>  
-
-<form method="post">  
-   <div class="form-group">  
-       <label asp-for="NewCategoryName" class="form-label">New Category</label>  
-       <input asp-for="NewCategoryName" class="form-control" />  
-       <span asp-validation-for="NewCategoryName" class="text-danger"></span>  
-   </div>  
-   <button type="submit" class="btn btn-primary mt-2">Add Category</button>  
-</form>  
-
-<hr />  
-
-<div class="container mt-4 px-0">  
-   <h3 class="mb-4">All User Categories</h3>  
-   <div class="row">  
-       @if (Model.UserCategories.Any())  
-       {  
-           @foreach (var category in Model.UserCategories)  
-           {  
-               <div class="col-auto mb-3">  
-                   <div class="category-pill" data-id="@category.Id" data-name="@category.Name">  
-                       <button type="button" class="delete-category-btn open-delete-modal"  
-                               data-category-id="@category.Id"  
-                               data-category-name="@category.Name">&times;</button>  
-                       <h6 class="category-name">@category.Name</h6>  
-                   </div>  
-               </div>  
-           }  
-       }  
-       else  
-       {  
-           <div class="col-12 text-center">No categories found.</div>  
-       }  
-   </div>  
-</div>  
+<div class="d-flex justify-content-center align-items-center min-vh-70">
+    <div class="profile-card p-5 shadow-lg w-100" style="max-width:600px;">
+        <h3 class="text-center mb-4" style="color:#17632d;"><i class="bi bi-tags me-2"></i>@ViewData["Title"]</h3>
+        <form method="post" class="mb-4">
+            <div class="form-group mb-3">
+                <label asp-for="NewCategoryName" class="form-label">New Category</label>
+                <input asp-for="NewCategoryName" class="form-control" />
+                <span asp-validation-for="NewCategoryName" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn custom-btn w-100">Add Category</button>
+        </form>
+        <hr />
+        <div class="container mt-4 px-0">
+            <h4 class="mb-4 text-center" style="color:#17632d;">All User Categories</h4>
+            <div class="row justify-content-center">
+                @if (Model.UserCategories.Any())
+                {
+                    @foreach (var category in Model.UserCategories)
+                    {
+                        <div class="col-auto mb-3">
+                            <div class="category-pill" data-id="@category.Id" data-name="@category.Name">
+                                <button type="button" class="delete-category-btn open-delete-modal"
+                                        data-category-id="@category.Id"
+                                        data-category-name="@category.Name">&times;</button>
+                                <h6 class="category-name">@category.Name</h6>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center">No categories found.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Delete Confirmation Modal -->  
 <div class="modal fade custom-position" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">  
@@ -102,74 +103,96 @@
 
 @section Styles {  
    <style>
-        .modal.custom-position .modal-dialog {
-            top: 30vh;
-            transform: translateY(-50%);
-            position: relative;
+        .min-vh-70 {
+            min-height: 70vh;
         }
-
-       .category-pill {  
-           position: relative;  
-           border-radius: 12px;  
-           display: flex;  
-           align-items: center;  
-           justify-content: flex-start;  
-           transition: all 0.3s ease;  
-           box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);  
-           cursor: pointer;  
-           text-align: center;  
-           padding: 5px 5px;  
-           margin: 5px;
-           white-space: nowrap;
-       }  
-
-       .category-pill:hover {  
-           transform: translateY(-3px);  
-           box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);  
-       }  
-
-       .category-name {  
-           font-weight: 600;  
-           margin: 0 10px;  
-           font-size: 0.9rem;  
-           word-wrap: break-word;  
-           white-space: pre-wrap;  
-       }  
-
-       .delete-category-btn {  
-           background: #ff4d4d;  
-           color: white;  
-           border: none;  
-           border-radius: 50%;  
-           width: 20px;  
-           height: 20px;  
-           display: flex;  
-           align-items: center;  
-           justify-content: center;  
-           cursor: pointer;  
-           position: relative;  
-           margin-right: 5px;  
-           font-size: 0;  
-       }  
-
-       .delete-category-btn::before,  
-       .delete-category-btn::after {  
-           content: '';  
-           position: absolute;  
-           width: 10px;  
-           height: 2px;  
-           background-color: white;  
-           top: 50%;  
-           left: 50%;  
-       }  
-
-       .delete-category-btn::before {  
-           transform: translate(-50%, -50%) rotate(45deg);  
-       }  
-
-       .delete-category-btn::after {  
-           transform: translate(-50%, -50%) rotate(-45deg);  
-       }  
+        .profile-card {
+            background: #fff;
+            border-radius: 18px;
+            max-width: 600px;
+            margin: 40px auto;
+            box-shadow: 0 4px 24px rgba(23, 99, 45, 0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+        }
+        .custom-btn {
+            background-color: #17632d;
+            color: white;
+            border: none;
+            transition: background 0.3s ease, transform 0.2s ease;
+            border-radius: 0.3125rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 0.75rem 0;
+        }
+        .custom-btn:hover {
+            background-color: #145214;
+            color: white;
+            transform: scale(1.05);
+        }
+        .profile-card .form-control:focus {
+            border-color: #17632d;
+            box-shadow: 0 0 0 0.2rem rgba(23, 99, 45, 0.15);
+        }
+        .profile-card h3 i, .profile-card h4 {
+            color: #17632d;
+        }
+        .category-pill {  
+            position: relative;  
+            border-radius: 12px;  
+            display: flex;  
+            align-items: center;  
+            justify-content: flex-start;  
+            transition: all 0.3s ease;  
+            box-shadow: 0 3px 6px rgba(23, 99, 45, 0.10);  
+            cursor: pointer;  
+            text-align: center;  
+            padding: 5px 12px;  
+            margin: 5px;
+            background: #eaf7ef;
+            white-space: nowrap;
+        }  
+        .category-pill:hover {  
+            transform: translateY(-3px);  
+            box-shadow: 0 5px 10px rgba(23, 99, 45, 0.15);  
+        }  
+        .category-name {  
+            font-weight: 600;  
+            margin: 0 10px;  
+            font-size: 0.98rem;  
+            word-wrap: break-word;  
+            white-space: pre-wrap;  
+            color: #fff;
+        }  
+        .delete-category-btn {  
+            background: #ff4d4d;  
+            color: white;  
+            border: none;  
+            border-radius: 50%;  
+            width: 20px;  
+            height: 20px;  
+            display: flex;  
+            align-items: center;  
+            justify-content: center;  
+            cursor: pointer;  
+            position: relative;  
+            margin-right: 5px;  
+            font-size: 0;  
+        }  
+        .delete-category-btn::before,  
+        .delete-category-btn::after {  
+            content: '';  
+            position: absolute;  
+            width: 10px;  
+            height: 2px;  
+            background-color: white;  
+            top: 50%;  
+            left: 50%;  
+        }  
+        .delete-category-btn::before {  
+            transform: translate(-50%, -50%) rotate(45deg);  
+        }  
+        .delete-category-btn::after {  
+            transform: translate(-50%, -50%) rotate(-45deg);  
+        }  
    </style>  
 }  
 
@@ -199,7 +222,6 @@
         {
             <text>new bootstrap.Modal(document.getElementById('nameRequiredModal')).show();</text>
         }
-
         @if (Model.ShowAlreadyExistsModal)
         {
             <text>new bootstrap.Modal(document.getElementById('categoryExistsModal')).show();</text>
